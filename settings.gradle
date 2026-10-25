@@ -1,0 +1,59 @@
+pluginManagement {
+    repositories {
+        // [自建版] 优先走国内镜像，避免 google()/mavenCentral() 在国内拉取超时
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        //原仓库
+        gradlePluginPortal()
+        mavenCentral()
+        //镜像仓库,无法连接源仓库自行启用镜像仓库,不要提交修改
+        //maven { url "https://maven-central-asia.storage-download.googleapis.com/maven2/" }
+        //maven { url 'https://maven.aliyun.com/repository/google' }
+        //maven { url 'https://maven.aliyun.com/repository/public' }
+        //maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        //maven { url 'https://repo.huaweicloud.com/repository/maven/' }
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        // [自建版] 优先走国内镜像
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        //原仓库
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        maven {
+            url = 'https://jitpack.io'
+            content {
+                includeGroupByRegex("com\\.github.*")
+            }
+        }
+        mavenCentral()
+
+        //镜像仓库,无法连接源仓库自行启用镜像仓库,不要提交修改
+        //maven { url "https://maven-central-asia.storage-download.googleapis.com/maven2/" }
+        //maven { url 'https://maven.aliyun.com/repository/google' }
+        //maven { url 'https://maven.aliyun.com/repository/public' }
+        //maven { url 'https://repo.huaweicloud.com/repository/maven/' }
+    }
+}
+rootProject.name = 'legado'
+
+include ':app'
+include ':modules:book'
+include ':modules:rhino'
