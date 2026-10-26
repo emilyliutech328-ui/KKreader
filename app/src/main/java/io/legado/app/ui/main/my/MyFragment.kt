@@ -29,6 +29,7 @@ import io.legado.app.ui.dict.rule.DictRuleActivity
 import io.legado.app.ui.file.FileManageActivity
 import io.legado.app.ui.main.MainFragmentInterface
 import io.legado.app.ui.replace.ReplaceRuleActivity
+import io.legado.app.ui.widget.dialog.TextDialog
 import io.legado.app.utils.LogUtils
 import io.legado.app.utils.getPrefBoolean
 import io.legado.app.utils.observeEventSticky
@@ -36,6 +37,7 @@ import io.legado.app.utils.openUrl
 import io.legado.app.utils.putPrefBoolean
 import io.legado.app.utils.sendToClip
 import io.legado.app.utils.setEdgeEffectColor
+import io.legado.app.utils.showDialogFragment
 import io.legado.app.utils.showHelp
 import io.legado.app.utils.startActivity
 import io.legado.app.utils.viewbindingdelegate.viewBinding
@@ -163,10 +165,26 @@ class MyFragment() : BaseFragment(R.layout.fragment_my_config), MainFragmentInte
 
                 "fileManage" -> startActivity<FileManageActivity>()
                 "readRecord" -> startActivity<ReadRecordActivity>()
+                "forkInfo" -> showForkInfo()
                 "about" -> startActivity<AboutActivity>()
                 "exit" -> activity?.finish()
             }
             return super.onPreferenceTreeClick(preference)
+        }
+
+        /**
+         * [自建版] 离线查看分叉说明（assets/forkInfo.md，由仓库根目录 kk/README.md 同步）
+         */
+        private fun showForkInfo() {
+            val ctx = context ?: return
+            val mdText = kotlin.runCatching {
+                ctx.assets.open("forkInfo.md").readBytes().decodeToString()
+            }.getOrElse {
+                getString(R.string.fork_info_unavailable)
+            }
+            showDialogFragment(
+                TextDialog(getString(R.string.fork_info), mdText, TextDialog.Mode.MD)
+            )
         }
 
 

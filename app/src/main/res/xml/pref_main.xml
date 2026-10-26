@@ -110,6 +110,14 @@
             android:title="@string/file_manage"
             app:iconSpaceReserved="false" />
 
+        <!-- [自建版] 新增：分叉说明入口（离线展示本仓库相对上游的定制与安全加固清单） -->
+        <io.legado.app.lib.prefs.Preference
+            android:icon="@drawable/ic_cfg_about"
+            android:key="forkInfo"
+            android:summary="@string/fork_info_desc"
+            android:title="@string/fork_info"
+            app:iconSpaceReserved="false" />
+
         <io.legado.app.lib.prefs.Preference
             android:icon="@drawable/ic_cfg_about"
             android:key="about"

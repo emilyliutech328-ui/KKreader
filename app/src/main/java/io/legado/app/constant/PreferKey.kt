@@ -44,6 +44,7 @@ object PreferKey {
     const val enableReview = "enableReview"
     const val showRss = "showRss"
     const val bookshelfLayout = "bookshelfLayout"
+    const val bookshelfCarousel = "bookshelfCarousel"
     const val bookshelfSort = "bookshelfSort"
     const val bookExportFileName = "bookExportFileName"
     const val bookImportFileName = "bookImportFileName"
@@ -212,4 +213,20 @@ object PreferKey {
 
     // [自建版] 是否跳过 TLS 证书与主机名校验，默认 false
     const val sslTrustAll = "sslTrustAll"
+
+    // ===== 内置 Edge 在线音色（听书）=====
+    const val edgeTtsEnabled = "edgeTtsEnabled"
+    const val edgeTtsVoice = "edgeTtsVoice"
+    const val edgeTtsCustomSsml = "edgeTtsCustomSsml"
+    const val edgeTtsFallback = "edgeTtsFallback"
+    const val edgeTtsPreCache = "edgeTtsPreCache"
+
+    // ===== 视觉与性能 =====
+    const val bookshelfCarouselAutoPerf = "bookshelfCarouselAutoPerf"
+    const val glassUi = "glassUi"
+    const val monetColor = "monetColor"
+    const val monetSource = "monetSource"
+
+    // ===== 订阅（RSS）使用说明折叠状态 =====
+    const val rssGuideExpanded = "rssGuideExpanded"
 }

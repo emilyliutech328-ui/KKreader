@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
     android:orientation="vertical">
 
     <io.legado.app.ui.widget.TitleBar
@@ -14,12 +15,22 @@
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/bookshelf" />
 
+    <io.legado.app.ui.main.bookshelf.carousel.BookshelfCarouselView
+        android:id="@+id/carousel_books"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/bookshelf_carousel_height"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title_bar"
+        tools:visibility="visible" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/title_bar"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/carousel_books">
 
         <io.legado.app.ui.widget.recycler.RecyclerViewAtPager2
             android:id="@+id/rv_bookshelf"
@@ -37,15 +48,14 @@
         android:id="@+id/tv_empty_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_margin="16dp"
         android:gravity="center"
         android:text="@string/bookshelf_empty"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/title_bar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title_bar"
         tools:text="TextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

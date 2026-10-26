@@ -189,6 +189,16 @@ abstract class AppDatabase : RoomDatabase() {
                     where not exists (select * from book_groups where groupId = ${BookGroup.IdLocal})
                 """.trimIndent()
                 db.execSQL(insertBookGroupLocalSql)
+                // 内置 Edge 在线音色朗读引擎（听书）。只插入一次，用户删除后不再恢复。
+                @Language("sql")
+                val insertEdgeTtsSql = """
+                    insert into httpTTS(id, name, url, contentType, concurrentRate, enabledCookieJar, lastUpdateTime)
+                    select ${io.legado.app.service.edge.EdgeTtsEngine.ENGINE_ID},
+                           'Edge 在线音色', '${io.legado.app.service.edge.EdgeTtsEngine.ENGINE_TAG}',
+                           'audio/mpeg', '0', 0, 0
+                    where not exists (select * from httpTTS where url = '${io.legado.app.service.edge.EdgeTtsEngine.ENGINE_TAG}')
+                """.trimIndent()
+                db.execSQL(insertEdgeTtsSql)
                 @Language("sql")
                 val insertBookGroupMusicSql = """
                     insert into book_groups(groupId, groupName, 'order', show) 

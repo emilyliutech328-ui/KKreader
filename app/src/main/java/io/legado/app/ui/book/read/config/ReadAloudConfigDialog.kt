@@ -15,12 +15,15 @@ import io.legado.app.constant.PreferKey
 import io.legado.app.data.appDb
 import io.legado.app.help.IntentHelp
 import io.legado.app.help.config.AppConfig
+import io.legado.app.databinding.DialogEditTextBinding
+import io.legado.app.lib.dialogs.alert
 import io.legado.app.lib.dialogs.SelectItem
 import io.legado.app.lib.prefs.SwitchPreference
 import io.legado.app.lib.prefs.fragment.PreferenceFragment
 import io.legado.app.lib.theme.backgroundColor
 import io.legado.app.lib.theme.primaryColor
 import io.legado.app.model.ReadAloud
+import io.legado.app.service.edge.EdgeTtsEngine
 import io.legado.app.service.BaseReadAloudService
 import io.legado.app.utils.GSON
 import io.legado.app.utils.StringUtils
@@ -81,6 +84,7 @@ class ReadAloudConfigDialog : BasePrefDialogFragment() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             addPreferencesFromResource(R.xml.pref_config_aloud)
             upSpeakEngineSummary()
+            upEdgeVoiceSummary()
             findPreference<SwitchPreference>(PreferKey.pauseReadAloudWhilePhoneCalls)?.let {
                 it.isEnabled = AppConfig.ignoreAudioFocus
             }
@@ -105,8 +109,43 @@ class ReadAloudConfigDialog : BasePrefDialogFragment() {
             when (preference.key) {
                 PreferKey.ttsEngine -> showDialogFragment(SpeakEngineDialog())
                 "sysTtsConfig" -> IntentHelp.openTTSSetting()
+                "edgeTtsVoicePick" -> showDialogFragment(EdgeVoiceDialog())
+                "edgeTtsSsmlEdit" -> showEdgeSsmlEditor()
             }
             return super.onPreferenceTreeClick(preference)
+        }
+
+        /**
+         * 自定义 SSML 编辑：留空恢复默认模板
+         */
+        private fun showEdgeSsmlEditor() {
+            val alertBinding = DialogEditTextBinding.inflate(layoutInflater).apply {
+                editView.hint = getString(R.string.edge_tts_custom_ssml_hint)
+                editView.setText(AppConfig.edgeTtsCustomSsml)
+                editView.minLines = 6
+            }
+            alert(R.string.edge_tts_custom_ssml) {
+                customView { alertBinding.root }
+                positiveButton(R.string.ok) {
+                    AppConfig.edgeTtsCustomSsml = alertBinding.editView.text?.toString().orEmpty()
+                    upEdgeVoiceSummary()
+                }
+                negativeButton(R.string.cancel)
+                neutralButton(R.string.edge_tts_ssml_reset) {
+                    AppConfig.edgeTtsCustomSsml = ""
+                    upEdgeVoiceSummary()
+                }
+            }
+        }
+
+        private fun upEdgeVoiceSummary() {
+            val voice = EdgeTtsEngine.voice
+            val custom = AppConfig.edgeTtsCustomSsml
+            findPreference<Preference>("edgeTtsVoicePick")?.summary = if (custom.isNotBlank()) {
+                getString(R.string.edge_tts_voice_with_ssml, voice)
+            } else {
+                voice
+            }
         }
 
         override fun onSharedPreferenceChanged(

@@ -71,6 +71,15 @@ by appCtx.getSharedPreferences("local", Context.MODE_PRIVATE) {
     val needUpDictRule: Boolean
         get() = !isLastVersion(2, "needUpDictRule")
 
+    /**
+     * 内置文库书源是否已导入过（用户删除后不再强行恢复）
+     */
+    var builtinWenku8Imported: Boolean
+        get() = getBoolean("builtinWenku8Imported", false)
+        set(value) {
+            edit { putBoolean("builtinWenku8Imported", value) }
+        }
+
     var versionCode
         get() = getLong(versionCodeKey, 0)
         set(value) {

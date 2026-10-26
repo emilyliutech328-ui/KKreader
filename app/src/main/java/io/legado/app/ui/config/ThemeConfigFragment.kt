@@ -31,6 +31,10 @@ import io.legado.app.lib.dialogs.selector
 import io.legado.app.lib.prefs.ColorPreference
 import io.legado.app.lib.prefs.fragment.PreferenceFragment
 import io.legado.app.lib.theme.primaryColor
+import io.legado.app.lib.theme.Monet
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import io.legado.app.model.analyzeRule.AnalyzeUrl
 import io.legado.app.ui.file.HandleFileContract
 import io.legado.app.ui.widget.number.NumberPickerDialog
@@ -205,6 +209,26 @@ class ThemeConfigFragment : PreferenceFragment(),
             PreferKey.bgImage -> selectBgAction(false)
             PreferKey.bgImageN -> selectBgAction(true)
             "themeList" -> ThemeListDialog().show(childFragmentManager, "themeList")
+
+            // 莫奈动态取色：立即按壁纸/背景图重新配色
+            "monetApply" -> {
+                if (!AppConfig.monetEnabled) {
+                    toastOnUi(R.string.monet_need_enable)
+                } else {
+                    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                        val ok = Monet.refresh(requireContext())
+                        withContext(Dispatchers.Main) {
+                            if (ok) {
+                                toastOnUi(R.string.monet_applied)
+                                recreateActivities()
+                            } else {
+                                toastOnUi(R.string.monet_failed)
+                            }
+                        }
+                    }
+                }
+            }
+
             "saveDayTheme",
             "saveNightTheme" -> alertSaveTheme(key)
 

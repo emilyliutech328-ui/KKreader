@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewConfiguration
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +25,7 @@ import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookGroup
 import io.legado.app.databinding.FragmentBooksBinding
 import io.legado.app.help.config.AppConfig
+import io.legado.app.help.PerfHelper
 import io.legado.app.lib.theme.accentColor
 import io.legado.app.lib.theme.primaryColor
 import io.legado.app.ui.book.info.BookInfoActivity
@@ -108,6 +110,9 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
     private fun initRecyclerView() {
         binding.rvBookshelf.setEdgeEffectColor(primaryColor)
         upFastScrollerBar()
+        binding.carouselBooks.isVisible = false
+        binding.carouselBooks.onBookClick = { open(it) }
+        binding.carouselBooks.onBookLongClick = { openBookInfo(it) }
         binding.refreshLayout.setColorSchemeColors(accentColor)
         binding.refreshLayout.setOnRefreshListener {
             binding.refreshLayout.isRefreshing = false
@@ -252,6 +257,7 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
                 binding.tvEmptyMsg.isGone = itemCount > 0
                 binding.refreshLayout.isEnabled = enableRefresh && itemCount > 0
                 booksAdapter.setItems(list)
+                upCarousel(list)
                 delay(100)
             }
         }
@@ -269,6 +275,21 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
                     delay(30 * 1000)
                 }
             }
+        }
+    }
+
+    /**
+     * 立体书架：顶部轮播跟随列表数据
+     *
+     * 显示条件由 [PerfHelper.shouldShowCarousel] 统一判定：
+     * 用户开关优先，其次按设备性能自动降级（低端机默认只看列表）。
+     */
+    private fun upCarousel(books: List<Book>) {
+        val show = PerfHelper.shouldShowCarousel()
+        binding.carouselBooks.isVisible = show && books.isNotEmpty()
+        if (show && books.isNotEmpty()) {
+            binding.carouselBooks.setReduceMotion(PerfHelper.carouselReduceMotion())
+            binding.carouselBooks.submitBooks(books, this, viewLifecycleOwner.lifecycle)
         }
     }
 

@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="launcher_background">#FF1A2F5A</color>
-    <color name="primary">@color/md_light_blue_600</color>
-    <color name="primaryDark">@color/md_light_blue_700</color>
-    <color name="accent">@color/md_pink_800</color>
+    <!-- [自建版] 品牌色：深藏青为主色，暖金为强调色（与启动图标一致） -->
+    <color name="kk_primary">#FF1A2F5A</color>
+    <color name="kk_primary_dark">#FF12223F</color>
+    <color name="kk_accent">#FFB8860B</color>
+    <color name="kk_accent_night">#FFE0B84A</color>
+    <color name="primary">@color/kk_primary</color>
+    <color name="primaryDark">@color/kk_primary_dark</color>
+    <color name="accent">@color/kk_accent</color>
 
     <color name="disabled">@color/md_light_disabled</color>
 

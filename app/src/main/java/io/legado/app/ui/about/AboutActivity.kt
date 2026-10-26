@@ -30,15 +30,18 @@ class AboutActivity : BaseActivity<ActivityAboutBinding>() {
             .commit()
         binding.tvAppSummary.post {
             kotlin.runCatching {
+                // [自建版] 摘要里高亮的品牌词改为「KK读书」（原为上游公众号名）
                 val span = ForegroundColorSpan(accentColor)
                 val spannableString = SpannableString(binding.tvAppSummary.text)
-                val gzh = getString(R.string.legado_gzh)
-                val start = spannableString.indexOf(gzh)
-                spannableString.setSpan(
-                    span, start, start + gzh.length,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                binding.tvAppSummary.text = spannableString
+                val brand = getString(R.string.app_name)
+                val start = spannableString.indexOf(brand)
+                if (start >= 0) {
+                    spannableString.setSpan(
+                        span, start, start + brand.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    binding.tvAppSummary.text = spannableString
+                }
             }
         }
     }

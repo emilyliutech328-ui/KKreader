@@ -1,5 +1,13 @@
 [
   {
+    "themeName": "KK读书",
+    "isNightTheme": false,
+    "primaryColor": "#1A2F5A",
+    "accentColor": "#B8860B",
+    "backgroundColor": "#F7F4EC",
+    "bottomBackground": "#EFEADD"
+  },
+  {
     "themeName": "默认",
     "isNightTheme": false,
     "primaryColor": "#795548",

@@ -1,0 +1,43 @@
+[
+  {
+    "bookSourceComment": "内置轻小说文库。书城浏览/搜索由 App 内本地书目索引驱动；站点对未登录访客关闭列表/搜索/排行，因此不提供站内搜索。详情/目录/正文可直接读取。注意：请求不能带 charset 参数，否则触发 Cloudflare 校验。",
+    "bookSourceGroup": "内置书源",
+    "bookSourceName": "轻小说文库",
+    "bookSourceType": 0,
+    "bookSourceUrl": "https://www.wenku8.net",
+    "customOrder": -100,
+    "enabled": true,
+    "enabledExplore": false,
+    "bookUrlPattern": "https://www\\.wenku8\\.net/book/\\d+\\.htm",
+    "header": "@js:JSON.stringify({\"User-Agent\":\"Dalvik/2.1.0 (Linux; U; Android 11)\",\"Referer\":\"https://www.wenku8.net/\"})",
+    "jsLib": "var WK = { base: \"https://www.wenku8.net\" };",
+    "searchUrl": "",
+    "ruleSearch": null,
+    "ruleBookInfo": {
+      "init": "",
+      "name": "@css:#content table:nth-of-type(1) tr:nth-child(1) b",
+      "author": "@css:#content table:nth-of-type(1) tr:nth-child(2) td:nth-child(2)",
+      "intro": "@css:#content table:nth-of-type(2) tr td:nth-child(2) span.hottext:nth-of-type(5)",
+      "kind": "@css:#content table:nth-of-type(2) tr td:nth-child(2) span.hottext:nth-of-type(1) b",
+      "lastChapter": "@css:#content table:nth-of-type(2) tr td:nth-child(2) span.hottext:nth-of-type(4) a",
+      "updateTime": "@css:#content table:nth-of-type(1) tr:nth-child(2) td:nth-child(4)",
+      "coverUrl": "@css:#content table:nth-of-type(2) tr td:nth-child(1) img@src",
+      "tocUrl": "@js:java.put(\"k\", baseUrl.replace(/.*\\/book\\//,\"\").replace(/\\.htm.*/,\"\")); \"https://www.wenku8.net/novel/\" + Math.floor(java.get(\"k\")/1000) + \"/\" + java.get(\"k\") + \"/index.htm\"",
+      "wordCount": "@css:#content table:nth-of-type(1) tr:nth-child(2) td:nth-child(5)"
+    },
+    "ruleToc": {
+      "chapterList": "@css:table.css tr",
+      "chapterName": "@css:td.ccss a, td.vcss",
+      "chapterUrl": "@css:td.ccss a@href",
+      "isVolume": "@js:var s = \"\" + (result == null ? \"\" : result); s.indexOf(\"<\") < 0 && s.trim().length > 0",
+      "formatJs": "",
+      "preUpdateJs": "",
+      "nextTocUrl": ""
+    },
+    "ruleContent": {
+      "content": "@css:#content@html",
+      "imageStyle": "FULL",
+      "replaceRegex": "本文来自 轻小说文库\\(http://www\\.wenku8\\.com\\)|最新最全的日本动漫轻小说 轻小说文库\\(http://www\\.wenku8\\.com\\) 为你一网打尽！"
+    }
+  }
+]

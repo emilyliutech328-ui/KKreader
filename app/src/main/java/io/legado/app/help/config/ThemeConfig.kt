@@ -315,9 +315,9 @@ object ThemeConfig {
 
     private fun getDayTheme(context: Context, name: String): Config {
         val primary =
-            context.getPrefInt(PreferKey.cPrimary, context.getCompatColor(R.color.md_brown_500))
+            context.getPrefInt(PreferKey.cPrimary, context.getCompatColor(R.color.kk_primary))
         val accent =
-            context.getPrefInt(PreferKey.cAccent, context.getCompatColor(R.color.md_red_600))
+            context.getPrefInt(PreferKey.cAccent, context.getCompatColor(R.color.kk_accent))
         val background =
             context.getPrefInt(PreferKey.cBackground, context.getCompatColor(R.color.md_grey_100))
         val bBackground =
@@ -403,9 +403,9 @@ object ThemeConfig {
 
             AppConfig.isNightTheme -> {
                 val primary =
-                    getPrefInt(PreferKey.cNPrimary, getCompatColor(R.color.md_blue_grey_600))
+                    getPrefInt(PreferKey.cNPrimary, getCompatColor(R.color.kk_primary_dark))
                 val accent =
-                    getPrefInt(PreferKey.cNAccent, getCompatColor(R.color.md_deep_orange_800))
+                    getPrefInt(PreferKey.cNAccent, getCompatColor(R.color.kk_accent_night))
                 var background =
                     getPrefInt(PreferKey.cNBackground, getCompatColor(R.color.md_grey_900))
                 if (ColorUtils.isColorLight(background)) {
@@ -427,9 +427,9 @@ object ThemeConfig {
 
             else -> {
                 val primary =
-                    getPrefInt(PreferKey.cPrimary, getCompatColor(R.color.md_brown_500))
+                    getPrefInt(PreferKey.cPrimary, getCompatColor(R.color.kk_primary))
                 val accent =
-                    getPrefInt(PreferKey.cAccent, getCompatColor(R.color.md_red_600))
+                    getPrefInt(PreferKey.cAccent, getCompatColor(R.color.kk_accent))
                 var background =
                     getPrefInt(PreferKey.cBackground, getCompatColor(R.color.md_grey_100))
                 if (!ColorUtils.isColorLight(background)) {

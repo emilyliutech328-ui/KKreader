@@ -245,6 +245,16 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             appCtx.putPrefInt(PreferKey.bookshelfLayout, value)
         }
 
+    /**
+     * 立体书架：书架顶部显示 3D 循环轮播（惯性吸附 + 触觉反馈），下方仍显示完整列表
+     * 关闭则仅显示列表（沿用 bookshelfLayout 的列表/网格设置）
+     */
+    var bookshelfCarousel: Boolean
+        get() = appCtx.getPrefBoolean(PreferKey.bookshelfCarousel, true)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.bookshelfCarousel, value)
+        }
+
     var saveTabPosition: Int
         get() = appCtx.getPrefInt(PreferKey.saveTabPosition, 0)
         set(value) {
@@ -825,5 +835,72 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         }
 
     val autoUpdateVariant get() = appCtx.getPrefBoolean("autoUpdateVariant", true)
+
+    // ===== 内置 Edge 在线音色（听书）=====
+
+    /** 是否启用内置 Edge 在线音色引擎 */
+    var edgeTtsEnabled
+        get() = appCtx.getPrefBoolean(PreferKey.edgeTtsEnabled, true)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.edgeTtsEnabled, value)
+        }
+
+    /** 选中的音色 ShortName，例如 zh-CN-XiaoxiaoNeural */
+    var edgeTtsVoice
+        get() = appCtx.getPrefString(PreferKey.edgeTtsVoice) ?: ""
+        set(value) {
+            appCtx.putPrefString(PreferKey.edgeTtsVoice, value)
+        }
+
+    /** 自定义 SSML（留空则用默认模板） */
+    var edgeTtsCustomSsml
+        get() = appCtx.getPrefString(PreferKey.edgeTtsCustomSsml) ?: ""
+        set(value) {
+            appCtx.putPrefString(PreferKey.edgeTtsCustomSsml, value)
+        }
+
+    /** 在线音色失败时是否自动回落到系统 TTS */
+    var edgeTtsFallbackToSystem
+        get() = appCtx.getPrefBoolean(PreferKey.edgeTtsFallback, true)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.edgeTtsFallback, value)
+        }
+
+    /** 预缓存段数（听书时提前合成的段落数） */
+    var edgeTtsPreCacheCount
+        get() = appCtx.getPrefInt(PreferKey.edgeTtsPreCache, 4)
+        set(value) {
+            appCtx.putPrefInt(PreferKey.edgeTtsPreCache, value)
+        }
+
+    // ===== 性能与视觉 =====
+
+    /** 立体书架是否按设备性能自动降级 */
+    var bookshelfCarouselAutoPerf
+        get() = appCtx.getPrefBoolean(PreferKey.bookshelfCarouselAutoPerf, true)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.bookshelfCarouselAutoPerf, value)
+        }
+
+    /** 玻璃拟态（模糊/半透明面板）开关 */
+    var glassUiEnabled
+        get() = appCtx.getPrefBoolean(PreferKey.glassUi, true)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.glassUi, value)
+        }
+
+    /** 莫奈动态取色：跟随壁纸/图片取主色 */
+    var monetEnabled
+        get() = appCtx.getPrefBoolean(PreferKey.monetColor, false)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.monetColor, value)
+        }
+
+    /** 莫奈取色来源：0 跟随系统壁纸，1 自定义图片 */
+    var monetSource
+        get() = appCtx.getPrefString(PreferKey.monetSource) ?: "0"
+        set(value) {
+            appCtx.putPrefString(PreferKey.monetSource, value)
+        }
 }
 

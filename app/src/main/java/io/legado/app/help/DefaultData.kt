@@ -2,6 +2,7 @@ package io.legado.app.help
 
 import io.legado.app.constant.AppConst
 import io.legado.app.data.appDb
+import io.legado.app.data.entities.BookSource
 import io.legado.app.data.entities.DictRule
 import io.legado.app.data.entities.HttpTTS
 import io.legado.app.data.entities.KeyboardAssist
@@ -36,10 +37,44 @@ object DefaultData {
                 if (LocalConfig.needUpDictRule) {
                     importDefaultDictRules()
                 }
+                // 内置轻小说文库书源：只在首次安装或版本升级时补齐，用户手动删除后不再强行加回
+                if (!LocalConfig.builtinWenku8Imported) {
+                    importBuiltinWenku8Source()
+                }
             }.onError {
                 it.printOnDebug()
             }
         }
+    }
+
+    /**
+     * 内置文库书源，来源 assets/defaultData/wenku8Sources.json
+     */
+    val wenku8Sources: List<BookSource> by lazy {
+        runCatching {
+            val json = String(
+                appCtx.assets.open("defaultData${File.separator}wenku8Sources.json")
+                    .readBytes()
+            )
+            GSON.fromJsonArray<BookSource>(json).getOrThrow()
+        }.getOrElse {
+            it.printOnDebug()
+            emptyList()
+        }
+    }
+
+    /**
+     * 导入内置文库书源（幂等：已存在同 URL 的源则跳过）
+     */
+    fun importBuiltinWenku8Source() {
+        val sources = wenku8Sources
+        if (sources.isEmpty()) return
+        val existing = appDb.bookSourceDao.all.map { it.bookSourceUrl }
+        val todo = sources.filterNot { existing.contains(it.bookSourceUrl) }
+        if (todo.isNotEmpty()) {
+            appDb.bookSourceDao.insert(*todo.toTypedArray())
+        }
+        LocalConfig.builtinWenku8Imported = true
     }
 
     val httpTTS: List<HttpTTS> by lazy {

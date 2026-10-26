@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -20,6 +21,7 @@ import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookGroup
 import io.legado.app.databinding.FragmentBookshelf2Binding
 import io.legado.app.help.config.AppConfig
+import io.legado.app.help.PerfHelper
 import io.legado.app.lib.theme.accentColor
 import io.legado.app.lib.theme.primaryColor
 import io.legado.app.ui.book.group.GroupEditDialog
@@ -85,6 +87,14 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
 
     private fun initRecyclerView() {
         binding.rvBookshelf.setEdgeEffectColor(primaryColor)
+        binding.carouselBooks.isVisible = false
+        binding.carouselBooks.onBookClick = { startActivityForBook(it) }
+        binding.carouselBooks.onBookLongClick = { book ->
+            startActivity<BookInfoActivity> {
+                putExtra("name", book.name)
+                putExtra("author", book.author)
+            }
+        }
         binding.refreshLayout.setColorSchemeColors(accentColor)
         binding.refreshLayout.setOnRefreshListener {
             binding.refreshLayout.isRefreshing = false
@@ -216,8 +226,21 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
                 }
                 binding.tvEmptyMsg.isGone = itemCount > 0
                 binding.refreshLayout.isEnabled = enableRefresh && itemCount > 0
+                upCarousel(list)
                 delay(100)
             }
+        }
+    }
+
+    /**
+     * 立体书架：顶部轮播只展示书籍（不含分组）
+     */
+    private fun upCarousel(books: List<Book>) {
+        val show = PerfHelper.shouldShowCarousel()
+        binding.carouselBooks.isVisible = show && books.isNotEmpty()
+        if (show && books.isNotEmpty()) {
+            binding.carouselBooks.setReduceMotion(PerfHelper.carouselReduceMotion())
+            binding.carouselBooks.submitBooks(books, this, viewLifecycleOwner.lifecycle)
         }
     }
 

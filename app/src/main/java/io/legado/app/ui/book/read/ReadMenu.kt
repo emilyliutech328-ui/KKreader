@@ -29,6 +29,7 @@ import io.legado.app.help.coroutine.Coroutine
 import io.legado.app.help.source.getSourceType
 import io.legado.app.lib.dialogs.alert
 import io.legado.app.lib.theme.Selector
+import io.legado.app.lib.theme.GlassUi
 import io.legado.app.lib.theme.accentColor
 import io.legado.app.lib.theme.bottomBackground
 import io.legado.app.lib.theme.buttonDisabledColor
@@ -205,6 +206,25 @@ class ReadMenu @JvmOverloads constructor(
             llBottomBg.setBackgroundResource(R.drawable.bg_eink_border_top)
         } else {
             llBottomBg.setBackgroundColor(bgColor)
+        }
+        // 玻璃拟态：给底部面板换成半透明+模糊的玻璃底（墨水屏不启用）
+        if (!AppConfig.isEInkMode && AppConfig.glassUiEnabled) {
+            GlassUi.apply(
+                llBottomBg,
+                bgColor,
+                alpha = 0.88f,
+                radiusPx = 18F.dpToPx()
+            )
+            GlassUi.apply(
+                titleBar,
+                bgColor,
+                alpha = 0.92f,
+                radiusPx = 18F.dpToPx()
+            )
+        } else {
+            GlassUi.clear(llBottomBg)
+            llBottomBg.setBackgroundColor(bgColor)
+            if (!AppConfig.isEInkMode) GlassUi.clear(titleBar)
         }
         fabSearch.backgroundTintList = bottomBackgroundList
         fabSearch.setColorFilter(textColor)

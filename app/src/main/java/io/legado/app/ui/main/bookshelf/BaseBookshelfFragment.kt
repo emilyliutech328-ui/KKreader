@@ -17,6 +17,7 @@ import io.legado.app.data.entities.BookGroup
 import io.legado.app.databinding.DialogBookshelfConfigBinding
 import io.legado.app.databinding.DialogEditTextBinding
 import io.legado.app.help.DirectLinkUpload
+import io.legado.app.help.PerfHelper
 import io.legado.app.help.config.AppConfig
 import io.legado.app.lib.dialogs.alert
 import io.legado.app.ui.about.AppLogDialog
@@ -193,6 +194,10 @@ abstract class BaseBookshelfFragment(layoutId: Int) : VMBaseFragment<BookshelfVi
                         swShowLastUpdateTime.isChecked = AppConfig.showLastUpdateTime
                         swShowWaitUpBooks.isChecked = AppConfig.showWaitUpCount
                         swShowBookshelfFastScroller.isChecked = AppConfig.showBookshelfFastScroller
+                        swBookshelfCarousel.isChecked = AppConfig.bookshelfCarousel
+                        swCarouselAutoPerf.isChecked = AppConfig.bookshelfCarouselAutoPerf
+                        swCarouselAutoPerf.text = getString(R.string.carousel_auto_perf) +
+                                " · " + PerfHelper.tierLabel()
                         rgLayout.checkByIndex(bookshelfLayout)
                         rgbLayout.checkByIndex(showBookname)
                         if (bookshelfLayout < 2) {
@@ -237,6 +242,15 @@ abstract class BaseBookshelfFragment(layoutId: Int) : VMBaseFragment<BookshelfVi
                     if (AppConfig.showBookshelfFastScroller != swShowBookshelfFastScroller.isChecked) {
                         AppConfig.showBookshelfFastScroller = swShowBookshelfFastScroller.isChecked
                         postEvent(EventBus.BOOKSHELF_REFRESH, "")
+                    }
+                    // 立体书架：切换后重建界面以重新布局顶部轮播
+                    if (AppConfig.bookshelfCarousel != swBookshelfCarousel.isChecked) {
+                        AppConfig.bookshelfCarousel = swBookshelfCarousel.isChecked
+                        recreate = true
+                    }
+                    if (AppConfig.bookshelfCarouselAutoPerf != swCarouselAutoPerf.isChecked) {
+                        AppConfig.bookshelfCarouselAutoPerf = swCarouselAutoPerf.isChecked
+                        recreate = true
                     }
                     if (bookshelfSort != rgSort.getCheckedIndex()) {
                         AppConfig.bookshelfSort = rgSort.getCheckedIndex()

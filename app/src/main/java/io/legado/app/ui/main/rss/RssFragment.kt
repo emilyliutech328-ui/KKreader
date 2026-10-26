@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import io.legado.app.R
 import io.legado.app.base.VMBaseFragment
 import io.legado.app.constant.AppLog
+import io.legado.app.constant.PreferKey
 import io.legado.app.data.AppDatabase
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.RssSource
@@ -30,6 +31,8 @@ import io.legado.app.ui.rss.source.manage.RssSourceActivity
 import io.legado.app.ui.rss.subscription.RuleSubActivity
 import io.legado.app.utils.applyTint
 import io.legado.app.utils.flowWithLifecycleAndDatabaseChange
+import io.legado.app.utils.getPrefBoolean
+import io.legado.app.utils.putPrefBoolean
 import io.legado.app.utils.openUrl
 import io.legado.app.utils.setEdgeEffectColor
 import io.legado.app.utils.showDialogFragment
@@ -74,9 +77,33 @@ class RssFragment() : VMBaseFragment<RssViewModel>(R.layout.fragment_rss), MainF
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         setSupportToolbar(binding.titleBar.toolbar)
         initSearchView()
+        initGuide()
         initRecyclerView()
         initGroupData()
         upRssFlowJob()
+    }
+
+    /**
+     * 订阅使用说明的折叠逻辑。
+     *
+     * 首次进入（本机没记录过）默认展开，之后记住用户的选择，
+     * 避免每次进页面都被大段文字占屏。
+     */
+    private fun initGuide() {
+        val expanded = getPrefBoolean(PreferKey.rssGuideExpanded, true)
+        setGuideExpanded(expanded)
+        binding.llGuideHeader.setOnClickListener {
+            val next = binding.tvGuideBody.visibility != View.VISIBLE
+            setGuideExpanded(next)
+            putPrefBoolean(PreferKey.rssGuideExpanded, next)
+        }
+    }
+
+    private fun setGuideExpanded(expanded: Boolean) {
+        binding.tvGuideBody.visibility = if (expanded) View.VISIBLE else View.GONE
+        binding.tvGuideToggle.text = getString(
+            if (expanded) R.string.rss_guide_collapse else R.string.rss_guide_expand
+        )
     }
 
     override fun onCompatCreateOptionsMenu(menu: Menu) {

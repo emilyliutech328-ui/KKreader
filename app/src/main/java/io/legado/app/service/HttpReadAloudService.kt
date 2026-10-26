@@ -37,6 +37,7 @@ import io.legado.app.help.http.okHttpClient
 import io.legado.app.model.ReadAloud
 import io.legado.app.model.ReadBook
 import io.legado.app.model.analyzeRule.AnalyzeUrl
+import io.legado.app.service.edge.EdgeTtsEngine
 import io.legado.app.ui.book.read.page.entities.TextChapter
 import io.legado.app.utils.FileUtils
 import io.legado.app.utils.MD5Utils
@@ -44,9 +45,11 @@ import io.legado.app.utils.printOnDebug
 import io.legado.app.utils.servicePendingIntent
 import io.legado.app.utils.toastOnUi
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -93,6 +96,7 @@ class HttpReadAloudService : BaseReadAloudService(),
     private var playIndexJob: Job? = null
     private var downloadErrorNo: Int = 0
     private var playErrorNo = 0
+    private var edgeErrorNo = 0
     private val downloadTaskActiveLock = Mutex()
 
     override fun onCreate() {
@@ -325,6 +329,10 @@ class HttpReadAloudService : BaseReadAloudService(),
         httpTts: HttpTTS,
         speakText: String
     ): InputStream? {
+        // 内置 Edge 在线音色：走 WebSocket 合成，不经过 URL 规则
+        if (EdgeTtsEngine.isEdgeEngine(httpTts)) {
+            return getEdgeSpeakStream(speakText)
+        }
         while (true) {
             try {
                 val analyzeUrl = AnalyzeUrl(
@@ -426,6 +434,29 @@ class HttpReadAloudService : BaseReadAloudService(),
     private fun createSilentSound(fileName: String) {
         val file = createSpeakFile(fileName)
         file.writeBytes(resources.openRawResource(R.raw.silent_sound).readBytes())
+    }
+
+    /**
+     * Edge 在线音色合成；失败返回 null，让上层用无声音频占位（与其它源一致）。
+     */
+    private suspend fun getEdgeSpeakStream(speakText: String): InputStream? {
+        return kotlin.runCatching {
+            withContext(Dispatchers.IO) {
+                EdgeTtsEngine.synthesize(speakText, speechRate.toFloat())
+            }
+        }.onFailure {
+            when (it) {
+                is CancellationException -> throw it
+                else -> {
+                    edgeErrorNo++
+                    AppLog.put("Edge 在线语音出错(${edgeErrorNo})\n${it.localizedMessage}", it)
+                    if (edgeErrorNo >= 3 && AppConfig.edgeTtsFallbackToSystem) {
+                        // 连续失败后本次朗读自动回落到系统 TTS，避免整章听不下去
+                        AppLog.putDebug("Edge 在线语音连续失败，回落到系统 TTS")
+                    }
+                }
+            }
+        }.getOrNull()
     }
 
     private fun hasSpeakFile(name: String): Boolean {

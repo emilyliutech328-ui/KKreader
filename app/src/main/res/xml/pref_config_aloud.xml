@@ -55,6 +55,32 @@
             app:iconSpaceReserved="false" />
 
         <io.legado.app.lib.prefs.Preference
+            android:title="@string/edge_tts_voice"
+            android:summary="@string/edge_tts_voice_summary"
+            android:key="edgeTtsVoicePick"
+            app:iconSpaceReserved="false" />
+
+        <io.legado.app.lib.prefs.SwitchPreference
+            android:defaultValue="true"
+            android:title="@string/edge_tts_fallback"
+            android:summary="@string/edge_tts_fallback_summary"
+            android:key="edgeTtsFallback"
+            app:iconSpaceReserved="false" />
+
+        <io.legado.app.lib.prefs.SwitchPreference
+            android:defaultValue="true"
+            android:title="@string/edge_tts_enabled"
+            android:summary="@string/edge_tts_enabled_summary"
+            android:key="edgeTtsEnabled"
+            app:iconSpaceReserved="false" />
+
+        <io.legado.app.lib.prefs.Preference
+            android:title="@string/edge_tts_custom_ssml"
+            android:summary="@string/edge_tts_custom_ssml_summary"
+            android:key="edgeTtsSsmlEdit"
+            app:iconSpaceReserved="false" />
+
+        <io.legado.app.lib.prefs.Preference
             android:title="@string/sys_tts_config"
             android:summary="@string/sys_tts_config_summary"
             android:key="sysTtsConfig"

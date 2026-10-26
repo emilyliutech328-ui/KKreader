@@ -12,6 +12,26 @@
         app:iconSpaceReserved="false"
         app:icons="@array/icons" />
 
+    <io.legado.app.lib.prefs.SwitchPreference
+        android:defaultValue="false"
+        android:key="monetColor"
+        android:summary="@string/monet_summary"
+        android:title="@string/monet_title"
+        app:iconSpaceReserved="false" />
+
+    <io.legado.app.lib.prefs.Preference
+        android:key="monetApply"
+        android:summary="@string/monet_apply_summary"
+        android:title="@string/monet_apply"
+        app:iconSpaceReserved="false" />
+
+    <io.legado.app.lib.prefs.SwitchPreference
+        android:defaultValue="true"
+        android:key="glassUi"
+        android:summary="@string/glass_ui_summary"
+        android:title="@string/glass_ui_title"
+        app:iconSpaceReserved="false" />
+
     <io.legado.app.lib.prefs.Preference
         android:key="welcomeStyle"
         android:title="@string/welcome_style"
