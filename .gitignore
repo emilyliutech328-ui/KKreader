@@ -1,20 +1,101 @@
+# ============ 构建产物 ============
 *.iml
 .gradle
-local.properties
-.DS_Store
 /build
 build/
+**/build/
 /captures
+captures/
 .externalNativeBuild
+.cxx
+.kotlin/
 /release
 /tmp
-node_modules/
+
+# ============ 本机配置（含绝对路径，不入库）============
+local.properties
+**/local.properties
+
+# ============ 签名与密钥（绝对不能入库）============
+*.jks
+*.keystore
+*.p12
+key.properties
+keystore/
+
+# ============ 上游遗留（自建版已删除 google-services）============
 /app/app
 /app/google
 /app/gradle.properties
-package-lock.json
+app/google-services.json
+
+# ============ IDE ============
 .idea/
-# Kotlin 2.0
-.kotlin/
-.cxx
 .vscode
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============ 前端依赖 ============
+node_modules/
+package-lock.json
+
+# ============ 输出物 ============
+*.apk
+*.aab
+*.ap_
+*.dex
+*.idsig
+*.hprof
+
+# ============ 本地调研/抓取临时文件（勿提交）============
+# 抓取文库页面的原始样本与脚本
+catraw/
+py8/
+p2test/
+cat/
+sm.xml
+*.repo.zip
+# 临时 html/htm/wml 抓取结果
+*.utf8.html
+t_*.html
+w_*.html
+wap_*.html
+q_*.html
+g_*.html
+p1.html
+p2.html
+p3.html
+p4.html
+p5.html
+o.html
+o2.html
+t1.htm
+t2.htm
+chk.htm
+probe.html
+x.html
+z.html
+w1.html
+ws.html
+raw.html
+sp.html
+login.html
+reg.html
+list.html
+full.html
+info.html
+# 临时脚本
+edge_ref.py
+gen_source*.py
+build_catalog.*
+fixres.py
+verify_cover.py
+crawl*.ps1
+# 临时凭据/数据
+ck.txt
+ck2.txt
+relay.txt
+br.json
+wf.json
+tree.json

@@ -1,6 +1,6 @@
 <resources>
     <!--App-->
-    <string name="app_name">KK读书</string>
+    <string name="app_name">轻风阅读</string>
     <string name="app_name_a">阅读·A</string>
     <string name="app_name_s">阅读Plus</string>
     <string name="receiving_shared_label">KK读书·搜索</string>
@@ -1236,4 +1236,31 @@
     <string name="auto_check_new_backup_t">自动检查新备份</string>
     <string name="auto_check_new_backup_s">打开软件时检查是否有新备份，有新备份时提示是否更新</string>
     <string name="sys_image_picker">系统图片选择器</string>
+    <string name="show_bookshelf_carousel">立体书架（顶部轮播，关闭则仅列表）</string>
+    <string name="edge_tts_voice">在线音色</string>
+    <string name="edge_tts_voice_summary">选择 Edge 在线朗读音色，支持中文与粤语</string>
+    <string name="edge_tts_voice_with_ssml">%1$s · 已启用自定义 SSML</string>
+    <string name="edge_tts_voice_empty">暂无可用音色</string>
+    <string name="edge_tts_fallback">失败时回落到系统朗读</string>
+    <string name="edge_tts_fallback_summary">在线音色连续失败时自动改用手机自带的朗读引擎</string>
+    <string name="edge_tts_enabled">启用 Edge 在线音色</string>
+    <string name="edge_tts_enabled_summary">使用微软 Edge 的公开朗读接口，无需账号</string>
+    <string name="edge_tts_custom_ssml">自定义 SSML</string>
+    <string name="edge_tts_custom_ssml_summary">留空则使用默认模板，高级用户可自定义语速、音调与停顿</string>
+    <string name="edge_tts_custom_ssml_hint">留空使用默认模板</string>
+    <string name="edge_tts_ssml_reset">恢复默认</string>
+    <string name="carousel_auto_perf">按设备性能自动简化</string>
+    <string name="monet_title">莫奈动态取色</string>
+    <string name="monet_summary">从系统壁纸提取主色，自动生成协调的主题配色</string>
+    <string name="monet_apply">立即重新取色</string>
+    <string name="monet_apply_summary">壁纸变化后点这里重新生成配色</string>
+    <string name="monet_need_enable">请先打开莫奈动态取色</string>
+    <string name="monet_applied">已按壁纸更新配色</string>
+    <string name="monet_failed">取色失败，可能没有可用的壁纸或背景图</string>
+    <string name="glass_ui_title">玻璃拟态</string>
+    <string name="glass_ui_summary">半透明与模糊面板；低配设备会自动关闭模糊</string>
+    <string name="rss_guide_title">订阅与收藏 · 使用说明</string>
+    <string name="rss_guide_expand">展开</string>
+    <string name="rss_guide_collapse">收起</string>
+    <string name="rss_guide_body">【订阅源】这里列出你订阅的资讯来源（博客、新闻、论坛、公众号镜像等）。点某一项即可浏览它最新推送的文章；长按可编辑、分组、禁用或删除。\n\n【添加订阅源】右上角菜单 → 订阅源管理 → 右下角「+」新建，或直接导入别人分享的规则链接。订阅源需要填：源地址、名称、分组，以及列表/正文的解析规则（支持 CSS、XPath、JSONPath、正则和 JS）。\n\n【阅读与收藏】在文章列表里点开正文即可阅读；觉得有用就点右上角星标收藏，收藏会单独归档在「收藏」里，不会随订阅源更新而消失。\n\n【搜索与分组】顶部搜索框可用「group:分组名」按分组过滤；菜单里可切换分组，长按底部标签也能改分组。\n\n【没看到内容】订阅页为空通常有两种原因：还没添加订阅源，或者订阅源本身失效（对方站点改版/停更）。可在订阅源管理里长按 → 校验，看具体报错。\n\n提示：收藏只保存在本机，换设备请先在「我的 → 备份」里导出。</string>
 </resources>

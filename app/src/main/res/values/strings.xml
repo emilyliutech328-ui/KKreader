@@ -2,7 +2,7 @@
 <resources>
     <!--App-->
     <!-- [自建版] 应用名改为「KK读书」，与官方版区分 -->
-    <string name="app_name">KK读书</string>
+    <string name="app_name">轻风阅读</string>
     <string name="app_name_a">Legado·A</string>
     <string name="app_name_s" translatable="false">LegadoPlus</string>
     <string name="receiving_shared_label">Legado·search</string>
@@ -1162,6 +1162,7 @@
     <string name="open_book_info_by_click_title">Click on the book title to open details</string>
     <string name="export_wait">Waiting for export</string>
     <string name="show_bookshelf_fast_scroller">Show quick scroll bar</string>
+    <string name="show_bookshelf_carousel">3D shelf carousel (off = list only)</string>
     <string name="export_all_use_book_source">Export book source for all books</string>
     <string name="keep_enable">Retain Enabled Status</string>
     <string name="preview_image_by_click">Click to preview image</string>
@@ -1301,12 +1302,11 @@
     <string name="video_setting">视频设置</string>
     <string name="video_setting_summary">自动播放、全屏播放等配置</string>
     <string name="history">历史记录</string>
-    <string name="app_name_sigma">阅读Sigma</string>
-    <string name="about_description_sigma">\u3000\u3000阅读Sigma继承自legado，旨在原版基础上完善和增加功能，欢迎您的加入。</string>
-    <string name="contributors_summary_sigma">gedoor、Luoyacheng、Horis和 Xwite 等，详情请在 GitHub 中查看</string>
-    <string name="app_share_description_sigma">
-        阅读 Sigma 下载地址：\nhttps://github.com/Luoyacheng/legado-E/releases
-    </string>
+    <!-- [自建版] 关于页品牌文案：不再展示上游产品名与上游下载地址 -->
+    <string name="app_name_sigma">轻风阅读</string>
+    <string name="about_description_sigma">\u3000\u3000KK读书 是「阅读Sigma（legado-E）」的自建分叉版，保留开源阅读的全部能力：自定义书源、订阅源、本地 TXT/EPUB、语音朗读、净化替换。\n\u3000\u3000本分叉做品牌定制与安全加固（UMD 解压上限、Rhino 脚本超时、正则超时、默认校验证书），独立包名，可与官方版共存。遵循 GPL-3.0，无广告、无统计。</string>
+    <string name="contributors_summary_sigma">gedoor、Luoyacheng、Horis 和 Xwite 等开源作者；本分叉在其基础上定制</string>
+    <string name="app_share_description_sigma">KK读书（自建版）：自定义书源的本地阅读器，支持本地 TXT/EPUB、订阅、语音朗读。基于开源阅读 Sigma，遵循 GPL-3.0。</string>
     <string name="sure_cache_book">是否确认开始缓存？</string>
     <string name="non_printable_set">不可视字符设定</string>
     <string name="whitespace_leading">行首</string>
@@ -1348,4 +1348,37 @@
     <!-- [自建版] 新增：TLS 证书校验开关 -->
     <string name="pt_ssl_trust_all">允许不安全的 SSL 证书</string>
     <string name="ps_ssl_trust_all">默认关闭。开启后不再校验服务器证书与主机名，仅用于访问自签名证书的书源站点；开启会暴露于中间人攻击，请谨慎使用。修改后需重启应用生效。</string>
+
+    <!-- [自建版] 品牌文案：启动页 / 关于页 / 我的页入口 -->
+    <string name="welcome_subtitle">静心阅读 · 万千故事</string>
+    <string name="welcome_footer">自建版 · 无广告 · 自定义书源</string>
+    <string name="fork_info">分叉说明</string>
+    <string name="fork_info_desc">KK读书 相对上游 legado-E 的定制与安全加固清单</string>
+    <string name="fork_info_unavailable">分叉说明文件缺失，请重新安装</string>
+    <string name="edge_tts_voice">在线音色</string>
+    <string name="edge_tts_voice_summary">选择 Edge 在线朗读音色，支持中文与粤语</string>
+    <string name="edge_tts_voice_with_ssml">%1$s · 已启用自定义 SSML</string>
+    <string name="edge_tts_voice_empty">暂无可用音色</string>
+    <string name="edge_tts_fallback">失败时回落到系统朗读</string>
+    <string name="edge_tts_fallback_summary">在线音色连续失败时自动改用手机自带的朗读引擎</string>
+    <string name="edge_tts_enabled">启用 Edge 在线音色</string>
+    <string name="edge_tts_enabled_summary">使用微软 Edge 的公开朗读接口，无需账号</string>
+    <string name="edge_tts_custom_ssml">自定义 SSML</string>
+    <string name="edge_tts_custom_ssml_summary">留空则使用默认模板，高级用户可自定义语速、音调与停顿</string>
+    <string name="edge_tts_custom_ssml_hint">留空使用默认模板</string>
+    <string name="edge_tts_ssml_reset">恢复默认</string>
+    <string name="carousel_auto_perf">按设备性能自动简化</string>
+    <string name="monet_title">莫奈动态取色</string>
+    <string name="monet_summary">从系统壁纸提取主色，自动生成协调的主题配色</string>
+    <string name="monet_apply">立即重新取色</string>
+    <string name="monet_apply_summary">壁纸变化后点这里重新生成配色</string>
+    <string name="monet_need_enable">请先打开莫奈动态取色</string>
+    <string name="monet_applied">已按壁纸更新配色</string>
+    <string name="monet_failed">取色失败，可能没有可用的壁纸或背景图</string>
+    <string name="glass_ui_title">玻璃拟态</string>
+    <string name="glass_ui_summary">半透明与模糊面板；低配设备会自动关闭模糊</string>
+    <string name="rss_guide_title">订阅与收藏 · 使用说明</string>
+    <string name="rss_guide_expand">展开</string>
+    <string name="rss_guide_collapse">收起</string>
+    <string name="rss_guide_body">【订阅源】这里列出你订阅的资讯来源（博客、新闻、论坛、公众号镜像等）。点某一项即可浏览它最新推送的文章；长按可编辑、分组、禁用或删除。\n\n【添加订阅源】右上角菜单 → 订阅源管理 → 右下角「+」新建，或直接导入别人分享的规则链接。订阅源需要填：源地址、名称、分组，以及列表/正文的解析规则（支持 CSS、XPath、JSONPath、正则和 JS）。\n\n【阅读与收藏】在文章列表里点开正文即可阅读；觉得有用就点右上角星标收藏，收藏会单独归档在「收藏」里，不会随订阅源更新而消失。\n\n【搜索与分组】顶部搜索框可用「group:分组名」按分组过滤；菜单里可切换分组，长按底部标签也能改分组。\n\n【没看到内容】订阅页为空通常有两种原因：还没添加订阅源，或者订阅源本身失效（对方站点改版/停更）。可在订阅源管理里长按 → 校验，看具体报错。\n\n提示：收藏只保存在本机，换设备请先在「我的 → 备份」里导出。</string>
 </resources>

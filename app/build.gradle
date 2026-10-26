@@ -21,8 +21,8 @@ static def releaseTime() {
     return new Date().format("yy.MMddHH", TimeZone.getTimeZone("GMT+8"))
 }
 
-def name = "lanying-reader"
-def version = "3." + releaseTime()
+def name = "qingfeng-reader"
+def version = "1.0." + releaseTime()
 // [自建版修复 P0] 原实现 'git rev-list HEAD --count'.execute() 在源码包无 .git 时
 // 得到空串，Integer.parseInt("") 抛 NumberFormatException；且该语句位于
 // configuration 阶段，会导致任何 task（含 assembleDebug）都无法启动。
@@ -60,13 +60,13 @@ android {
         }
     }
     defaultConfig {
-        // [自建版] 独立 applicationId，可与官方版 io.legado.app 共存、互不覆盖。
+        // [轻风阅读] 独立 applicationId，可与 KK读书 / Legado 官方版共存、互不覆盖。
         // namespace 保持 io.legado.app 不变 —— 它与源码包结构和 R 类绑定，
         // 改了会导致全量 import 失效，属 Android 官方推荐的 rebrand 做法。
-        applicationId "io.lanying.reader"
+        applicationId "io.qingfeng.reader"
         minSdk 21
         targetSdk 36
-        versionCode 10000 + gitCommits
+        versionCode 20000 + gitCommits
         versionName version
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         project.ext.set("archivesBaseName", name + "_" + version)
@@ -159,6 +159,12 @@ android {
         jniLibs.excludes.add('lib/*/librtmp-jni.so')
     }
 
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
     sourceSets {
         // Adds exported schema location as test app assets.
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
@@ -182,6 +188,9 @@ dependencies {
     //coreLibraryDesugaring('com.android.tools:desugar_jdk_libs_nio:2.0.4')
     coreLibraryDesugaring(libs.desugar)
     testImplementation(libs.junit)
+    // 立体书架离屏渲染测试（Robolectric 原生图形模式，无需真机）
+    testImplementation('org.robolectric:robolectric:4.14.1')
+    testImplementation('androidx.test:core:1.6.1')
     androidTestImplementation(libs.bundles.androidTest)
     //kotlin
     //noinspection GradleDependency,DifferentStdlibGradleVersion

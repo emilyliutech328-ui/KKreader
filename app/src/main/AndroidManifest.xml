@@ -7,7 +7,7 @@
          导致任意 App 无需权限即可读取书架/书源/正文并静默写书源。此处补齐承诺的权限。
          protectionLevel=signature：仅同签名应用可访问，对外部第三方彻底关闭。 -->
     <permission
-        android:name="io.lanying.reader.READ_WRITE"
+        android:name="io.qingfeng.reader.READ_WRITE"
         android:protectionLevel="signature" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -536,8 +536,8 @@
             android:authorities="${applicationId}.readerProvider"
             android:enabled="true"
             android:exported="true"
-            android:readPermission="io.lanying.reader.READ_WRITE"
-            android:writePermission="io.lanying.reader.READ_WRITE"
+            android:readPermission="io.qingfeng.reader.READ_WRITE"
+            android:writePermission="io.qingfeng.reader.READ_WRITE"
             tools:ignore="ExportedContentProvider" />
         <provider
             android:name="androidx.core.content.FileProvider"

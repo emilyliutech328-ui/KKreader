@@ -1,6 +1,6 @@
 <resources>
     <!--App-->
-    <string name="app_name">KK读书</string>
+    <string name="app_name">輕風閱讀</string>
     <string name="app_name_a">閱讀·A</string>
     <string name="receiving_shared_label">閱讀·搜尋</string>
     <string name="tip_perm_request_storage">閱讀需要存取記憶卡權限，請前往「設定」—「應用程式權限」—打開所需權限</string>
@@ -1223,4 +1223,30 @@
     <string name="auto_check_new_backup_t">自动检查新备份</string>
     <string name="auto_check_new_backup_s">打开软件时检查是否有新备份，有新备份时提示是否更新</string>
     <string name="sys_image_picker">系统图片选择器</string>
+    <string name="edge_tts_voice">線上音色</string>
+    <string name="edge_tts_voice_summary">選擇 Edge 線上朗讀音色，支援中文與粵語</string>
+    <string name="edge_tts_voice_with_ssml">%1$s · 已啟用自訂 SSML</string>
+    <string name="edge_tts_voice_empty">暫無可用音色</string>
+    <string name="edge_tts_fallback">失敗時回落到系統朗讀</string>
+    <string name="edge_tts_fallback_summary">線上音色連續失敗時自動改用手機內建的朗讀引擎</string>
+    <string name="edge_tts_enabled">啟用 Edge 線上音色</string>
+    <string name="edge_tts_enabled_summary">使用微軟 Edge 的公開朗讀介面，無需帳號</string>
+    <string name="edge_tts_custom_ssml">自訂 SSML</string>
+    <string name="edge_tts_custom_ssml_summary">留空則使用預設範本，進階使用者可自訂語速、音調與停頓</string>
+    <string name="edge_tts_custom_ssml_hint">留空使用預設範本</string>
+    <string name="edge_tts_ssml_reset">恢復預設</string>
+    <string name="carousel_auto_perf">依裝置效能自動簡化</string>
+    <string name="monet_title">莫內動態取色</string>
+    <string name="monet_summary">從系統桌布提取主色，自動產生協調的主題配色</string>
+    <string name="monet_apply">立即重新取色</string>
+    <string name="monet_apply_summary">桌布變更後點這裡重新產生配色</string>
+    <string name="monet_need_enable">請先開啟莫內動態取色</string>
+    <string name="monet_applied">已依桌布更新配色</string>
+    <string name="monet_failed">取色失敗，可能沒有可用的桌布或背景圖</string>
+    <string name="glass_ui_title">玻璃擬態</string>
+    <string name="glass_ui_summary">半透明與模糊面板；低規裝置會自動關閉模糊</string>
+    <string name="rss_guide_title">訂閱與收藏 · 使用說明</string>
+    <string name="rss_guide_expand">展開</string>
+    <string name="rss_guide_collapse">收起</string>
+    <string name="rss_guide_body">【訂閱源】這裡列出你訂閱的資訊來源（部落格、新聞、論壇、公眾號鏡像等）。點某一項即可瀏覽它最新推送的文章；長按可編輯、分組、停用或刪除。\n\n【新增訂閱源】右上角選單 → 訂閱源管理 → 右下角「+」新建，或直接匯入別人分享的規則連結。訂閱源需要填：源位址、名稱、分組，以及列表/正文的解析規則（支援 CSS、XPath、JSONPath、正規表示式與 JS）。\n\n【閱讀與收藏】在文章列表裡點開正文即可閱讀；覺得有用就點右上角星號收藏，收藏會單獨歸檔在「收藏」裡，不會隨訂閱源更新而消失。\n\n【搜尋與分組】頂部搜尋框可用「group:分組名」按分組過濾；選單裡可切換分組，長按底部標籤也能改分組。\n\n【沒看到內容】訂閱頁為空通常有兩種原因：還沒新增訂閱源，或者訂閱源本身失效（對方網站改版/停更）。可在訂閱源管理裡長按 → 校驗，看具體錯誤。\n\n提示：收藏只保存在本機，換裝置請先在「我的 → 備份」裡匯出。</string>
 </resources>
