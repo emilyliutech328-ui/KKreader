@@ -1,0 +1,52 @@
+# ============================================================
+# 行尾统一
+# ============================================================
+# Windows 脚本保持 CRLF，其余源码统一 LF，避免跨平台 diff 噪声
+*.bat           text eol=crlf
+*.cmd           text eol=crlf
+*.sh            text eol=lf
+*.kt            text eol=lf
+*.java          text eol=lf
+*.gradle        text eol=lf
+*.kts           text eol=lf
+*.xml           text eol=lf
+*.json          text eol=lf
+*.md            text eol=lf
+
+# ============================================================
+# 注意：可执行位（100755）不由本文件控制
+# ============================================================
+# .gitattributes 只管行尾与二进制判定，管不了文件 mode。
+# gradlew 的可执行位记录在 git 索引里，Windows 上默认 core.fileMode=false
+# 所以改动不会被检测。若某次提交后又丢位，用：
+#     git update-index --chmod=+x gradlew
+#     git ls-files -s gradlew        # 应显示 100755
+# 本项目已显式设置过 gradlew / avd.sh / .github/scripts/cronet.sh。
+
+# ============================================================
+# 二进制（禁止行尾转换与文本 diff）
+# ============================================================
+*.jar           binary
+*.aar           binary
+*.so            binary
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.gif           binary
+*.webp          binary
+*.ico           binary
+*.ttf           binary
+*.otf           binary
+*.zip           binary
+*.apk           binary
+*.jks           binary
+*.keystore      binary
+
+# ============================================================
+# 语言与 diff 提示
+# ============================================================
+*.kt            linguist-language=Kotlin
+*.gradle        linguist-language=Groovy
+
+# 文库抓取样本是 GBK 编码，禁止任何行尾改写，否则会破坏字节
+app/src/test/resources/wenku8/*  -text
