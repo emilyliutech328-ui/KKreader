@@ -34,11 +34,28 @@ jobs:
           key: gradle-${{ hashFiles('gradle/libs.versions.toml', '**/*.gradle', 'gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
-      - name: 配置 Android SDK
-        uses: android-actions/setup-android@v3
+      # runner 预装 Android SDK，只补装 compileSdk 36
+      - name: 安装 Android SDK 平台
+        run: |
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          if [ -z "$SDK" ] || [ ! -d "$SDK" ]; then
+            echo "::error::找不到 Android SDK"
+            exit 1
+          fi
+          SDKM=$(find "$SDK/cmdline-tools" -name sdkmanager -type f 2>/dev/null | head -n 1)
+          if [ -n "$SDKM" ]; then
+            yes | "$SDKM" --licenses > /dev/null 2>&1 || true
+            "$SDKM" "platforms;android-36" "build-tools;36.0.0" > /dev/null || \
+              echo "::warning::SDK 安装失败，尝试继续"
+          else
+            echo "::warning::找不到 sdkmanager，使用 runner 预装 SDK"
+          fi
+          ls "$SDK/platforms"
 
       - name: 生成 local.properties
-        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+        run: |
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          echo "sdk.dir=$SDK" > local.properties
 
       # ============ 还原签名密钥库 ============
       # 密钥库不入库，存放在 Secrets：

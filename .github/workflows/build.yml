@@ -15,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -34,17 +37,42 @@ jobs:
           key: gradle-${{ hashFiles('gradle/libs.versions.toml', '**/*.gradle', 'gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
-      - name: 配置 Android SDK
-        uses: android-actions/setup-android@v3
+      # GitHub 的 ubuntu-latest runner 预装 Android SDK（ANDROID_SDK_ROOT），
+      # 只需补装项目要求的 compileSdk 36 平台与 build-tools。
+      - name: 安装 Android SDK 平台
+        run: |
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          echo "SDK 路径: $SDK"
+          if [ -z "$SDK" ] || [ ! -d "$SDK" ]; then
+            echo "::error::找不到 Android SDK，runner 环境异常"
+            exit 1
+          fi
+          echo "现有 platforms:"; ls "$SDK/platforms" 2>/dev/null || echo "(空)"
+
+          SDKM=$(find "$SDK/cmdline-tools" -name sdkmanager -type f 2>/dev/null | head -n 1)
+          if [ -z "$SDKM" ]; then
+            echo "::error::找不到 sdkmanager"
+            exit 1
+          fi
+          echo "sdkmanager: $SDKM"
+
+          yes | "$SDKM" --licenses > /dev/null 2>&1 || true
+          "$SDKM" "platforms;android-36" "build-tools;36.0.0" > /dev/null || {
+            echo "::warning::SDK 安装失败，尝试继续（runner 可能已预装）"
+          }
+          echo "安装后 platforms:"; ls "$SDK/platforms"
 
       - name: 生成 local.properties
-        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+        run: |
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          echo "sdk.dir=$SDK" > local.properties
+          cat local.properties
 
       - name: 单元测试
-        run: ./gradlew testAppDebugUnitTest --no-daemon --stacktrace
+        run: ./gradlew testAppDebugUnitTest --stacktrace
 
       - name: 构建 Debug APK
-        run: ./gradlew assembleAppDebug --no-daemon --stacktrace
+        run: ./gradlew assembleAppDebug --stacktrace
 
       - name: 上传测试报告
         if: failure()
@@ -55,6 +83,7 @@ jobs:
           retention-days: 7
 
       - name: 上传 Debug APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk
