@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.test.core.app.ApplicationProvider
 import io.legado.app.data.entities.Book
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -24,6 +25,20 @@ import java.util.concurrent.TimeUnit
  * 用 Robolectric 原生图形模式把 [BookshelfCarouselView] 真实绘制到 Bitmap，
  * 输出 PNG 用于与 Wenku8_Flutter 的参考截图对比，无需真机/模拟器。
  */
+/**
+ * 立体书架离屏渲染测试。
+ *
+ * 用 Robolectric 原生图形模式把 [BookshelfCarouselView] 真实绘制到 Bitmap，
+ * 输出 PNG 用于与 Wenku8_Flutter 的参考截图对比，无需真机/模拟器。
+ *
+ * ⚠️ 这是**开发辅助工具**，不属于常规单元测试：
+ *  - 需要 Robolectric NATIVE 图形运行时（首次会下载 SDK，CI 上很慢且易失败）
+ *  - 产物是给人眼看的 PNG，断言只是粗略校验
+ * 因此加 @Ignore 默认跳过，本地需要时用 -PwithRenderTest=true 或
+ * 手工去掉注解单独运行：
+ *   ./gradlew testAppDebugUnitTest --tests "*BookshelfCarouselRenderTest*"
+ */
+@Ignore("开发辅助渲染测试，默认跳过；需要时单独运行")
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [34], application = android.app.Application::class, qualifiers = "w390dp-h844dp-xxhdpi")
