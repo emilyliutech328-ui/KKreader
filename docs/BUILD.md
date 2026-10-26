@@ -110,6 +110,82 @@ android.overridePathCheck=true
 `gradle.properties` 里 `org.gradle.jvmargs` 已给到 `-Xmx4g`。
 内存不足时不要并发跑别的构建。
 
+### `Plugin [id: 'com.google.devtools.ksp', ...] was not found`
+
+**这个坑踩过，记录完整排障路径，避免重复。**
+
+症状：本地能构建，但 CI（干净缓存）报 KSP 插件解析失败。
+
+三个层层叠加的原因，缺一不可地排查：
+
+**① 版本必须配对（最容易被忽略）**
+
+```
+kotlin = "2.3.10"
+ksp    = "2.3.4"    ← 错误！KSP 版本必须与 Kotlin 严格配对
+```
+
+KSP 的版本号与 Kotlin 对齐，`2.3.4` 配 `2.3.10` 不合法。
+本地因为 Gradle 缓存里**恰好**有 2.3.4 的产物而「看起来能用」，
+换成干净环境立刻暴露。正确写法：`ksp = "2.3.10"`。
+
+**② `google{}` 的 content 过滤会锁死插件**
+
+```groovy
+google {
+    content {
+        includeGroupByRegex("com\\.google.*")   // ← KSP 组也匹配！
+    }
+}
+```
+
+`com.google.devtools.ksp` 命中 `com.google.*`，被限制成"只能从 Google 仓库解析"，
+而 KSP 插件实际只发在 `gradlePluginPortal`。**移除 `com.google.*`**，
+只保留 `com.android.*` 与 `androidx.*`。
+
+**③ 镜像返回 502 会让 Gradle 放弃后续所有仓库（本次真凶）**
+
+```
+Failed to get resource: GET. [HTTP HTTP/1.1 502 Bad Gateway:
+https://maven.aliyun.com/repository/gradle-plugin/.../ksp...pom]
+```
+
+阿里云 `gradle-plugin` 镜像对 KSP 仓库返回 **502（服务端错误）而非 404**。
+Gradle 遇到 5xx 会判定该资源不可用并**停止尝试后面的仓库**，
+于是排在后面的 `gradlePluginPortal` / `mavenCentral` 根本没被查到。
+
+表现特征：报错里 "Searched in the following repositories" 列表**不完整**
+（只列出镜像，没有官方源），这本身就是镜像出错的信号。
+
+修复：**官方源前置，镜像降为兜底**：
+
+```groovy
+pluginManagement {
+    repositories {
+        gradlePluginPortal()      // 官方优先
+        google { content { ... } }
+        mavenCentral()
+        // 镜像兜底
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+    }
+}
+```
+
+`dependencyResolutionManagement` 同样处理（镜像 502 也会中断依赖图解析）。
+
+> 国内直连官方源确实慢一些，但**正确性优先**。镜像只在官方失败时兜底。
+
+### `./gradlew: Permission denied`（CI，exit 126）
+
+Windows 上提交时 git 不保留 Unix 权限位，`gradlew` 被记成 `100644`，
+Linux runner 上无法执行。修复：
+
+```bash
+git update-index --chmod=+x gradlew
+git ls-files -s gradlew    # 必须显示 100755
+```
+
 ## CI
 
 ### build.yml — 推送 / PR 自动检查
