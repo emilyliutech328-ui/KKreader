@@ -23,18 +23,20 @@ static def releaseTime() {
 
 def name = "qingfeng-reader"
 def version = "1.0." + releaseTime()
-// [自建版修复 P0] 原实现 'git rev-list HEAD --count'.execute() 在源码包无 .git 时
-// 得到空串，Integer.parseInt("") 抛 NumberFormatException；且该语句位于
-// configuration 阶段，会导致任何 task（含 assembleDebug）都无法启动。
-// 改为容错：git 不可用 / 非仓库 / 命令失败一律回退 0。
-def gitCommits = {
-    try {
-        def text = 'git rev-list HEAD --count'.execute().text.trim()
-        return text ? text.toInteger() : 0
-    } catch (Exception ignored) {
-        return 0
-    }
-}()
+
+// [P0 修复] versionCode 不能依赖 git。
+//
+// 历史问题：原实现 versionCode = 20000 + gitCommits，而 gitCommits 取
+// `git rev-list HEAD --count`。源码包一旦没有 .git（例如从 zip 解压、
+// CI 浅克隆失败），命令返回空串回退 0，versionCode 就永远停止增长，
+// 导致新包无法覆盖安装（INSTALL_FAILED_VERSION_DOWNGRADE）。
+//
+// 现改为由构建时间推导，单调递增且无需 git：
+//   yyMMddHH 例：26 10 26 13  -> 26102613
+//   加上基数 300000  -> 26402613，远低于 versionCode 上限 2100000000。
+// 同一小时内多次构建 versionCode 相同，属预期（正式发版按小时粒度足够）。
+def buildStamp = (new Date().format("yyMMddHH", TimeZone.getTimeZone("GMT+8"))) as int
+def computedVersionCode = 300_000 + buildStamp
 
 android {
     compileSdk = compile_sdk_version
@@ -66,7 +68,7 @@ android {
         applicationId "io.qingfeng.reader"
         minSdk 21
         targetSdk 36
-        versionCode 20000 + gitCommits
+        versionCode computedVersionCode
         versionName version
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         project.ext.set("archivesBaseName", name + "_" + version)
