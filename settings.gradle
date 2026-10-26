@@ -1,25 +1,24 @@
 pluginManagement {
     repositories {
-        // [自建版] 优先走国内镜像，避免 google()/mavenCentral() 在国内拉取超时
+        // [自建版] 国内镜像优先（国内构建快）
         maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/public' }
+
+        // 官方插件仓库：KSP、Room 等插件只在 gradlePluginPortal 有。
+        // 之前它排在 google{} 之后，而 google{} 用 includeGroupByRegex
+        // 限定了 com.google.* 只能从 Google 仓库解析 —— 于是
+        // com.google.devtools.ksp 在 CI（无缓存）上必然解析失败。
+        // 这里把 gradlePluginPortal 前置，并从 google 的 include 里移除 com.google.*。
+        gradlePluginPortal()
+
         google {
             content {
                 includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
                 includeGroupByRegex("androidx.*")
             }
         }
-        //原仓库
-        gradlePluginPortal()
         mavenCentral()
-        //镜像仓库,无法连接源仓库自行启用镜像仓库,不要提交修改
-        //maven { url "https://maven-central-asia.storage-download.googleapis.com/maven2/" }
-        //maven { url 'https://maven.aliyun.com/repository/google' }
-        //maven { url 'https://maven.aliyun.com/repository/public' }
-        //maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-        //maven { url 'https://repo.huaweicloud.com/repository/maven/' }
     }
 }
 
