@@ -1,15 +1,12 @@
 pluginManagement {
     repositories {
-        // [自建版] 国内镜像优先（国内构建快）
-        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/public' }
-
-        // 官方插件仓库：KSP、Room 等插件只在 gradlePluginPortal 有。
-        // 之前它排在 google{} 之后，而 google{} 用 includeGroupByRegex
-        // 限定了 com.google.* 只能从 Google 仓库解析 —— 于是
-        // com.google.devtools.ksp 在 CI（无缓存）上必然解析失败。
-        // 这里把 gradlePluginPortal 前置，并从 google 的 include 里移除 com.google.*。
+        // ===== 官方仓库优先 =====
+        // 曾经把阿里云镜像放前面「国内更快」，但镜像存在两类问题：
+        //   1) 对 com.google.devtools.ksp 这类插件返回 502（而非 404），
+        //      Gradle 收到 5xx 会直接判定该资源不可用并停止尝试后续仓库，
+        //      导致 CI 上 KSP 插件永远解析不到；
+        //   2) 镜像同步有延迟，新版本插件经常缺失。
+        // 因此官方源前置，镜像作兜底（国内失败时会自动回落到镜像）。
         gradlePluginPortal()
 
         google {
@@ -19,16 +16,18 @@ pluginManagement {
             }
         }
         mavenCentral()
+
+        // ===== 镜像兜底 =====
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
     }
 }
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        // [自建版] 优先走国内镜像
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/public' }
-        //原仓库
+        // ===== 官方仓库优先（原因同 pluginManagement）=====
         google {
             content {
                 includeGroupByRegex("com\\.android.*")
@@ -44,11 +43,9 @@ dependencyResolutionManagement {
         }
         mavenCentral()
 
-        //镜像仓库,无法连接源仓库自行启用镜像仓库,不要提交修改
-        //maven { url "https://maven-central-asia.storage-download.googleapis.com/maven2/" }
-        //maven { url 'https://maven.aliyun.com/repository/google' }
-        //maven { url 'https://maven.aliyun.com/repository/public' }
-        //maven { url 'https://repo.huaweicloud.com/repository/maven/' }
+        // ===== 镜像兜底 =====
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
     }
 }
 rootProject.name = 'legado'
