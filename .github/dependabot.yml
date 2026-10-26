@@ -1,13 +1,18 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+# Dependabot 配置
+#
+# 本项目是 GPL 分叉，依赖升级必须人工验证（尤其是 AGP / Gradle / Kotlin /
+# jsoup 这些会直接导致构建失败或功能异常的库）。因此策略是：
+#   - 只收「补丁级」更新（x.y.Z），次版本和主版本一律忽略
+#   - 同时最多开 3 个 PR，避免堆积
+#   - 关键库（AGP/Gradle/Kotlin/jsoup/Rhino）完全锁定，手工升级
+#
+# 需要升级大版本时：改 gradle/libs.versions.toml + 本地构建验证后再合并。
 
 version: 2
+
 registries:
   maven-google:
     type: maven-repository
-    # url: https://maven.google.com
     url: https://dl.google.com/dl/android/maven2/
     password: dummy
     username: dummy
@@ -26,20 +31,51 @@ updates:
   - package-ecosystem: gradle
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     registries: "*"
-    open-pull-requests-limit: 20
+    open-pull-requests-limit: 3
+    # 只接受补丁更新
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+      # ===== 以下库完全锁定，禁止自动升级 =====
+      # AGP：大版本破坏性变更极多
+      - dependency-name: "com.android.tools.build:gradle"
+      # Gradle 本体
+      - dependency-name: "gradle-wrapper"
+      # Kotlin / KSP：必须成对升级，自动升级必错配
+      - dependency-name: "org.jetbrains.kotlin:*"
+      - dependency-name: "com.google.devtools.ksp"
+      # jsoup：上游注释明确锁定 1.16.2，1.17+ 破坏 AnalyzeByJSoup 与 JsoupXpath
+      - dependency-name: "org.jsoup:jsoup"
+      # Rhino：新版用了 Android 8 以下不存在的 VarHandle
+      - dependency-name: "com.script:rhino"
+      - dependency-name: "com.github.gedoor:rhino-android"
+      # Room：涉及 schema 校验与迁移，必须人工验证
+      - dependency-name: "androidx.room:*"
+      # Firebase：自建版已移除相关依赖
+      - dependency-name: "com.google.firebase:*"
+      - dependency-name: "com.google.gms:google-services"
     groups:
       kotlin_KSP:
         patterns:
           - "org.jetbrains.kotlin:*"
           - "com.google.devtools.ksp"
-  # Maintain dependencies for GitHub Actions
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+    open-pull-requests-limit: 2
+
   - package-ecosystem: npm
     directory: "modules/web"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
