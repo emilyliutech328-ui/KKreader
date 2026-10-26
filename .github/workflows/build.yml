@@ -69,7 +69,27 @@ jobs:
           cat local.properties
 
       - name: 单元测试
-        run: ./gradlew testAppDebugUnitTest --stacktrace
+        run: |
+          set +e
+          ./gradlew testAppDebugUnitTest --stacktrace 2>&1 | tee /tmp/test.log
+          RC=${PIPESTATUS[0]}
+          if [ $RC -ne 0 ]; then
+            echo "=========================================="
+            echo "单元测试失败，以下是关键日志（便于诊断）"
+            echo "=========================================="
+            grep -E "FAILED|ClassNotFound|initializationError|What went wrong|Execution failed|Caused by|Exception" /tmp/test.log | head -n 60 || true
+            echo "------------------------------------------"
+            echo "失败用例详情："
+            find app/build/test-results -name "*.xml" -exec sh -c '
+              grep -l "failures=\"[1-9]\|errors=\"[1-9]" "$1" 2>/dev/null | while read f; do
+                echo "--- $f"
+                sed -n "s/.*<failure message=\"\([^\"]*\)\".*/  FAIL: \1/p" "$f" | head -n 5
+                sed -n "s/.*<error message=\"\([^\"]*\)\".*/  ERR: \1/p" "$f" | head -n 5
+              done' _ {} \; 2>/dev/null || true
+            echo "=========================================="
+            exit $RC
+          fi
+          echo "单元测试通过"
 
       - name: 构建 Debug APK
         run: ./gradlew assembleAppDebug --stacktrace
