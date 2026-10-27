@@ -64,8 +64,8 @@ gedoor/legado  (GPL-3.0)
 环境：JDK 17、Android SDK 36、Gradle 8.14。
 
 ```bash
-git clone https://github.com/emilyliutech328-ui/KKreader.git
-cd KKreader
+git clone https://github.com/emilyliutech328-ui/QingFeng.git
+cd QingFeng
 ./gradlew assembleAppRelease
 ```
 
