@@ -1,253 +1,147 @@
-# 待办与问题记录
+# 问题与待办记录
 
-> 用法：新问题往下追加，改完在「状态」打勾并注明版本。
-> 注意：以下问题**均未修改**，等确认后统一处理，不要单独动手。
-
----
-
-## 待修改（未开始）
-
-### 1. 立体书架底部虚线区域与书的距离偏近
-
-- **状态**：未修改（按用户要求先记录，暂不动手）
-- **提出时间**：2026-10-26
-- **现象**：立体书架里，最后一排书的底部与下方「全部图书 · N 本」虚线框之间距离偏小，看着有点挤。
-- **期望**：再拉开 **约半个字的高度**（≈ 7~8dp，按 14sp 字号算）。
-- **涉及位置**：
-  - `app/src/main/java/io/legado/app/ui/main/bookshelf/carousel/BookshelfCarouselView.kt`
-    - `onSizeChanged()` 里 `baseline = shelfBottom - dp(6f)` 与 `textBlockHeight = dp(46f)`
-    - `drawCaptions()` 里 `val top = shelfBottom + dp(8f)`
-  - 书架线（`drawShelfBackdrop()` 的 `baseline`）与落影也需要同步往下让一点
-- **改法备忘**（下次动手时参考）：
-  - 把 `textBlockHeight` 从 46dp 提到 ~54dp，或
-  - 保持 46dp 不变，改为 `drawCaptions()` 的 `top = shelfBottom + dp(15f)`，
-    同时把 `baseline` 上移 `dp(7f)`，让书架线和虚线框之间留出半个字的空隙
-  - 注意 `liftHeight` 与 `spineMaxHeight` 依赖 `shelfBottom`，改动后需复查
-    书顶是否仍不超出控件（上一版已修好，别回退）
+> 用法：新问题往下追加；改完移到「已解决」并注明 commit。
+> 最后更新：2026-10-27
 
 ---
 
-### 2. 立体书架选中的书"缩回书架深处"，而不是悬浮在书架外
+## 一、已解决
 
-- **状态**：未修改（用户明确要求先记录，统一修复，不要单独改）
-- **提出时间**：2026-10-26
-- **现象**：
-  滑动停止后，选中的那本书没有像预期那样"从书架上抽出来、悬浮在最外层"，
-  反而看起来缩回了书架深处（被左右相邻书挡住 / 高度不明显 / 视觉上退到后排）。
-- **期望**：
-  1. 选中的书**明显高出**相邻书脊，看起来是从书架里被抽出来的；
-  2. 它应当**遮挡左侧相邻的书**（由于 3D 视角是从右前方看，抽出后会压住左邻）；
-  3. 悬浮状态要稳定，停在选中位时不能回弹进书架。
+### 立体书架底部虚线区与书底距离偏近
+**状态**：✅ 已修复（commit `23d7c69`）
 
-- **根因分析**（已定位到代码，但未改动）：
-  文件：`app/src/main/java/io/legado/app/ui/main/bookshelf/carousel/BookshelfCarouselView.kt`
+- 原状：书底 `baseline = shelfBottom - 6dp`，虚线框顶在 `shelfBottom + 8dp`，
+  间距仅 **14dp**，视觉发挤。
+- 修复：`baseline` 改为 `shelfBottom - 13dp`，间距增至 **21dp**
+  （≈14sp 字号的一半高度）。
 
-  a) **上浮量被夹得几乎为零**（主因）
-     - `onSizeChanged()` 第 ~264 行：
-       ```kotlin
-       liftHeight = minOf(spineMaxHeight * 0.42f,
-                          baseline - spineMaxHeight * 1.14f - dp(4f)).coerceAtLeast(0f)
-       ```
-       这是上一版为了"书顶不超出画框"加的夹紧。在常见屏幕高度下，
-       `baseline - spineMaxHeight * 1.14f` 往往只剩很小的正值，
-       导致 `liftHeight` 只有十几像素甚至接近 0，书几乎没有上浮。
-     - `drawBookVolume()` 第 ~660 行又夹了一次：
-       ```kotlin
-       val maxLiftTop  = (spineTop - dp(4f)).coerceAtLeast(0f)
-       val maxLiftEdge = (spineTop - dp(4f) + (baseline - spineTop)).coerceAtLeast(0f)
-       val pull = lift.coerceAtMost(minOf(maxLiftTop, maxLiftEdge))
-       ```
-       其中 `maxLiftEdge = baseline - dp(4f)`，等于把上提量限制在"不高于书架线"，
-       **这直接把"悬浮在书架外"的语义抹掉了**——书永远不可能高于书架线。
+### 选中书「缩回书架深处」，未浮出并遮挡邻书
+**状态**：✅ 已修复（commit `23d7c69`）
 
-  b) **绘制顺序没有为选中的书让路**（次因）
-     - `onDraw()` 第 ~513-532 行按 `first..last`（从左到右）顺序绘制，
-       靠后的（右边的）书后画、压住左边的书。
-     - 选中的书在中间，于是**右邻压住它**，视觉上像是被挤回书架里去了。
-     - 正确做法应是把 weight 最大的（选中书）挪到最后绘制，让它压住左右邻居。
+三个原因叠加，逐条修复：
 
-  c) **`pull` 同时被用于两个方向**
-     - 现在 `pull` 既做"上提"（y 减去 pull），又做"向左让位"（x 减去 `pull * 0.66f`）。
-     - 若只修 a) 而不修这个耦合，上提变大后横向位移也会跟着变大，书会歪出弧线。
+| 原因 | 原实现 | 修复 |
+|---|---|---|
+| **a. 上浮量被压到几乎为零** | `min(书脊*0.42, baseline - 书脊*1.14 - 4dp)` → 实际仅 ~27dp，书脊却 ~190dp | 书脊上限 `0.78→0.70`，上浮目标改为书脊的 **50%**，只受「书顶不越控件顶」约束。实测 **26.9dp → 61.2dp（2.3 倍）** |
+| **b. 夹紧约束语义错误** | `maxLiftEdge = baseline - 4dp`，等于限制上提量「不高于书架线」，直接禁止浮出 | 删除该约束，只保留「不超出控件顶部（留 2dp）」 |
+| **c. 绘制顺序遮挡错误** | 从左到右绘制，右邻书压住中间那本 | 改为「其余书从左到右，**选中书最后画**」 |
+| **d. 横移与上提耦合** | 共用 `pull`，上浮变大后整排弧形排列被拉歪 | 解耦：`shiftX = pull * 0.30` |
 
-- **修复方案（待确认后执行，三处需一起改）**：
-  1. **重算 `liftHeight`**：改为按"书架可用高度"给一个足够大但安全的值，例如
-     `liftHeight = (baseline - dp(6f)) * 0.45f`，再用
-     `shelfTopMargin = dp(6f)`（控件顶部预留）做上限，保证 `spineTop - pull >= dp(2f)`。
-     目标观感：选中书顶部比相邻书脊高约 **1/3 个书脊高度**。
-  2. **去掉 `maxLiftEdge` 这一条夹紧**，只保留"不超出控件顶部"的约束
-     （这个约束本身是对的，只是不该同时夹书架线）。
-  3. **绘制顺序**：`onDraw()` 里把选中书（`coverWeight` 最大者）排到最后再画，
-     其余保持从左到右。这样它才能遮住左邻。
-  4. **`pull` 解耦**：上提量 `liftY` 与横向让位 `shiftX` 分开算，
-     `shiftX = liftY * 0.35f` 左右（避免横向过度位移破坏弧形排列）。
-  5. 改完必须回归验证：
-     - 书顶不超出控件（上一版修好的不能回退）；
-     - 滑动/松手/惯性吸附全过程中不抖动、不回弹；
-     - 高配/中配/低配（`PerfHelper` 分档）下都正常；
-     - 平板/折叠屏大宽度下比例仍合理。
+- 安全校验：书顶位置 = **2dp**（不越界）；书底到虚线框 **21dp**。
+- 验证：CI Build 通过（5m01s）。
 
-- **关联改动**：修这个会和问题 1（虚线间距）共用 `shelfBottom` / `baseline`，
-  建议**两项一起改、一次出包**，避免来回改同一段几何。
+### versionCode 恒为 20000，新版本无法覆盖安装
+**状态**：✅ 已修复（commit `6241037`）
+
+- 原状：`versionCode = 20000 + gitCommits`，而 `gitCommits` 取
+  `git rev-list HEAD --count`。源码无 `.git` 时返回空串回退 0，
+  versionCode 永远停在 20000 → `INSTALL_FAILED_VERSION_DOWNGRADE`。
+- 修复：`versionCode = 300_000 + yyMMddHH`（如 26402623），
+  单调递增、不依赖 git。
+- 实测：APK 中 `versionCode='26402623'`。
+
+### 构建过慢（全量 11.5 分钟）
+**状态**：✅ 已优化
+
+- 措施：Gradle 缓存迁至 `D:\gradle-home`（与项目同盘），
+  开启 `parallel` / `caching` / `configureondemand` /
+  `kotlin.incremental` / **`ksp.incremental`**。
+- 实测：全量 11.5 分钟 → 冷启 2.3 分钟 → **增量 19.7 秒**。
+
+### CI 无法运行（连续 4 个原因）
+**状态**：✅ 已修复（CI 现已通过）
+
+1. `gradlew` 丢可执行位（Windows 提交不保留 mode）→ exit 126
+2. KSP 版本未与 Kotlin 配对（`2.3.4` vs `kotlin 2.3.10`）
+3. `google{}` 的 `includeGroupByRegex("com\\.google.*")` 锁死 KSP 插件
+4. **阿里云镜像返回 502，Gradle 遇 5xx 会中止尝试后续仓库**
+
+修复：官方源前置、镜像降为兜底。详见 `docs/BUILD.md`。
+
+### 仓库堆积 25 个危险 dependabot PR
+**状态**：✅ 已处理
+
+- 全部关闭并删分支，`.github/dependabot.yml` 收紧：
+  只收补丁级、并发上限 3、AGP/Gradle/Kotlin/KSP/jsoup/Rhino/Room/Firebase 锁定。
 
 ---
 
-## 已解决
+## 二、待处理
 
-（暂无）
+### P0
 
----
+*(暂无)*
 
-# 第二轮排查发现（2026-10-26 夜间，全部未修改）
+### P1 · 品牌一致性
 
-> 以下由逐项对照源码 + 实测站点得出，按严重程度排序。
-> **均未动手**，等统一修复。
+#### 桌面图标仍是「KK」字样
+- **现象**：应用名已改为「轻风阅读」，但 `mipmap-xxxhdpi/ic_launcher_foreground.png`
+  实际图样是深蓝「KK」字样，桌面第一眼就不对。
+- **修复建议**：重新出图标（建议「风的线条 + 书页」或单字「风」），
+  替换 `ic_launcher_background/foreground/monochrome` 五套 dpi。
 
-## P0 · 会影响正常使用
-
-### 3. versionCode 永远是 20000，下一版无法覆盖安装
-
-- **状态**：未修改 · **严重**
-- **根因**：`app/build.gradle` 里
-  ```groovy
-  versionCode 20000 + gitCommits
-  ```
-  而 `gitCommits` 靠 `'git rev-list HEAD --count'.execute()`，源码包**没有 `.git`**
-  （已确认 `C:\kkbuild\.git` 不存在），命令失败后回退 0。
-- **实测证据**：
-  - 轻风阅读 1.0 → `versionCode='20000'`
-  - KK读书 3.26 → `versionCode='10000'`
-  两者都恰好等于各自基数，说明 `gitCommits` 一直为 0。
-- **后果**：以后每次发版 versionCode 都是 20000，**安卓会拒绝覆盖安装**，
-  用户必须先卸载（丢数据）。
-- **修复建议**：改成时间戳或自增：
-  ```groovy
-  // 用构建时间生成，保证单调递增
-  versionCode = (new Date().format("yyMMddHH") as Integer) + 300_000
-  ```
-  或简单用 `20000 + (System.currentTimeMillis() / 60000 % 100000)`。
-  注意别超过 versionCode 上限（2^31-1），也别跨年溢出。
-
-### 4. 玻璃拟态开启后，底部菜单面板内容会被模糊掉
-
-- **状态**：未修改 · **严重**
-- **根因**：`lib/theme/GlassUi.kt` 里对 View 用 `setRenderEffect(createBlurEffect(...))`。
-  `RenderEffect` 模糊的是**该 View 自身及其整棵子树**，不是"背后的内容"。
-- **调用处**：`ui/book/read/ReadMenu.kt:212` 对 `llBottomBg`（LinearLayout，
-  里面是所有菜单按钮和文字）、`:218` 对 `titleBar`（标题文字）调用。
-- **后果**：Android 12+ 且开启玻璃拟态时，**阅读菜单的按钮和文字会糊成一片**，
-  低配机因为走渐变分支反而不受影响——表现成"越好的手机越糊"。
-- **修复建议**（三选一）：
-  1. 对**背景层**（纯色/图片 View）应用模糊，不碰承载内容的容器；
-  2. 或者干脆去掉 `setRenderEffect`，只保留半透明+渐变（稳妥）；
-  3. 或者把模糊做在 `vw_menu_bg` 这种纯背景 View 上。
-
-### 5. 内置书源 searchUrl 为空，每次搜书都会报错
-
-- **状态**：未修改 · 中等
-- **根因**：
-  - `assets/defaultData/wenku8Sources.json` 里 `"searchUrl": ""`；
-  - `model/webBook/WebBook.kt:57`：
-    ```kotlin
-    if (searchUrl.isNullOrBlank()) throw NoStackTraceException("搜索url不能为空")
-    ```
-  - `ui/book/search/SearchScope.kt` 取源时不按 `searchUrl` 过滤，所以这条源一定会被选中并抛错。
-- **后果**：用户每次搜书，结果列表里会多出一条"搜索url不能为空"的错误项，
-  看起来像 App 坏了。
-- **修复建议**：删掉 `wenku8Sources.json` 的 `searchUrl` 字段并给这条源设
-  `enabledExplore = false`；或在 `SearchScope` 里过滤掉 `searchUrl.isBlank()` 的源
-  （后者更通用，但会影响其他用户自建源的行为，需谨慎）。
-
-## P1 · 品牌一致性
-
-### 6. 应用名改了，但桌面图标还是「KK」
-
-- **状态**：未修改 · 明显
-- **证据**：`mipmap-xxxhdpi/ic_launcher_foreground.png` 实际图样是深蓝「KK」字样
-  （已读图确认）。而 `application-label='轻风阅读'`。
-- **后果**：桌面/任务栏显示"轻风阅读"，图标却是 KK，第一眼就不对。
-- **修复建议**：重新出图标（建议"轻风/风的线条 + 书页"，或单字"风"），
-  同时替换 `ic_launcher_background/foreground/monochrome` 五套 dpi。
-
-### 7. 关于页 / 分享文案里写死了「KK读书」
-
-- **状态**：未修改 · 中等
-- **证据**（`res/values/strings.xml`）：
-  - `about_description_sigma`：「KK读书 是「阅读Sigma（legado-E）」的自建分叉版…」
+#### 关于页 / 分享文案写死「KK读书」
+- **位置**（`res/values/strings.xml`）：
+  - `about_description_sigma`：「KK读书 是「阅读Sigma…」
   - `app_share_description_sigma`：「KK读书（自建版）…」
   - `fork_info_desc`：「KK读书 相对上游 legado-E…」
   - `values-zh/strings.xml:6` `receiving_shared_label`：「KK读书·搜索」
-- **连带 bug**：`ui/about/AboutActivity.kt:35` 用
-  `getString(R.string.app_name)`（=轻风阅读）去 `indexOf` 高亮品牌词，
-  但摘要正文里没有「轻风阅读」四个字 → **高亮永远不生效**。
-- **修复建议**：把上述四处文案的「KK读书」改成「轻风阅读」，
-  高亮逻辑自然恢复（不用改代码）。
+- **连带 bug**：`AboutActivity.kt:35` 用 `getString(R.string.app_name)`
+  （=轻风阅读）去摘要里 `indexOf` 高亮品牌词，但正文里没有这四个字，
+  **高亮永远不生效**。改文案后自动恢复，无需改代码。
 
-### 8. 代码注释 / 图标注释 / 颜色名仍写着 KK
+#### 代码注释 / 颜色名仍写 KK
+- **位置**：`mipmap-anydpi-v26/ic_launcher.xml:2` 注释、
+  `values/colors.xml:5-8`（`kk_primary` / `kk_accent` 等）、
+  `strings.xml:4` 注释、`AboutActivity.kt:33` 注释
+- **影响**：不影响运行，纯维护性。颜色名改动成本高（多处引用），
+  建议只改注释。
 
-- **状态**：未修改 · 轻微
-- **证据**：
-  - `res/mipmap-anydpi-v26/ic_launcher.xml:2` 注释「KK读书 启动图标…KK 字样」
-  - `res/values/colors.xml:5-8` 颜色名 `kk_primary` / `kk_primary_dark` /
-    `kk_accent` / `kk_accent_night`
-  - `values/strings.xml:4` 注释「应用名改为「KK读书」」
-  - `AboutActivity.kt:33` 注释「品牌词改为「KK读书」」
-- **后果**：不影响运行，但后续维护容易混。
-- **修复建议**：颜色名可保留（改名要动多处引用，收益低），
-  注释顺手改掉即可。
+### P2 · 交互细节
 
-## P2 · 交互细节
-
-### 9. 立体书架底部：翻页热区与虚线区域重叠
-
-- **状态**：未修改 · 中等
+#### 立体书架底部：翻页热区与虚线区重叠
 - **根因**（`BookshelfCarouselView.kt`）：
-  - 第 338 行：`if (downY > height - dp(30f) && x > width * 0.62f)` → 判为翻页
-  - 第 344 行：`if (downY > shelfBottom + dp(6f))` → 判为"点书打开"
-  - 而 `shelfBottom = height - 46dp`，虚线框从 `height-38dp` 画到 `height-8dp`
-- **问题**：在右下角 `x > width*0.62` 且 `downY > height-30dp` 时，
-  点虚线框会被当成"翻页"而不是"点书"。两个热区有约 8dp 重叠。
-- **修复建议**：先判 `downY > shelfBottom`（明确属于底部标签区），再判翻页热区；
-  或把翻页热区整体下移/右移避开虚线框。
+  - `downY > height - dp(30f) && x > width * 0.62f` → 判为翻页
+  - `downY > shelfBottom + dp(6f)` → 判为「点书打开」
+  - 而虚线框从 `height-38dp` 画到 `height-8dp`，两者约 8dp 重叠
+- **修复建议**：先判 `downY > shelfBottom`（底部标签区），再判翻页热区。
 
-### 10. 订阅页使用说明有两处与实际不符
+#### 订阅页使用说明有两处与实际不符
+1. 文案写「菜单 → 订阅源管理 → 右下角「+」新建」，
+   实际新增入口是 **topbar 菜单 `menu_add`**（`RssSourceActivity.kt:135`）。
+2. 文案写「长按 → 校验」，但 **RSS 订阅源没有校验功能**
+   （那是书源的批量校验），RSS 只有「调试」（`RssSourceDebugActivity`）。
+- **已核实正确**：`group:` 前缀搜索属实（`RssFragment.kt:191`）、
+  星标收藏属实（`menu_rss_star`）。改这两处措辞即可。
 
-- **状态**：未修改 · 轻微
-- **不符点**：
-  1. 文案写「菜单 → 订阅源管理 → 右下角「+」新建」，
-     实际新增入口是 **topbar 菜单 `menu_add`**（`RssSourceActivity.kt:135`），
-     不是右下角悬浮按钮。
-  2. 文案写「长按 → 校验」，
-     但 **RSS 订阅源没有"校验"功能**（那是书源的批量校验）。
-     RSS 只有「调试」入口（`RssSourceDebugActivity`）。
-- **已核实正确的部分**：`group:` 前缀搜索属实（`RssFragment.kt:191`），
-  星标收藏属实（`menu_rss_star` → `RssFavoritesActivity`）。
-- **修复建议**：改正这两处措辞。
+### P3 · 功能增强（可选）
 
-## 已核实无误（不用担心）
+#### 内置「轻小说文库」书源 `searchUrl` 为空
+- **现象**：搜书时会抛「搜索url不能为空」（`WebBook.kt:57`），
+  每次搜索多一条错误项。
+- **背景**：站点对未登录访客关闭了列表/搜索接口，因此这条源
+  目前只能打开已知书页链接（详情/目录/正文正常）。
+- **选项**：① 配置登录信息恢复站内搜索；② 从搜索范围过滤掉空 `searchUrl` 的源。
 
-- 书源实测仍可用：`/book/{aid}.htm`、`/novel/.../index.htm`、章节页均返回 200
-  且 `<title>` 正常（用 Dalvik UA 实测通过）
-- 内置书源导入链路完整：`App.kt:92` → `DefaultData.upVersion()` → `importBuiltinWenku8Source()`
-- 权限名已同步改为 `io.qingfeng.reader.READ_WRITE`
-- 书城删除后**无任何悬空引用**
-- 莫奈取色后走 `recreateActivities()` 重建，配色能生效
-- 订阅说明面板折叠状态持久化正确，默认展开符合预期
+#### 封面生成版式改良
+- **状态**：设计已完成，见 `docs/DESIGN/03-封面生成设计.md`，未实施。
+- **规划**：横排自适应 + 边框纹理 + 8 种图案 + 20 个占位作者。
+- **已决策**：不提取副标题、占位作者不加提示、保留旧竖排版式。
+
+#### 玻璃拟态覆盖范围
+- **现状**：只做了阅读菜单（`ReadMenu.kt`）。
+- **待定**：是否铺到书架 / 发现页 / 对话框（需动大量布局）。
 
 ---
 
-# 修复优先级建议
+## 三、已核实无误（不需要动）
 
-| 优先级 | 问题 | 理由 |
-|---|---|---|
-| **P0** | 3. versionCode 恒定 | 不修则后续版本装不上，最致命 |
-| **P0** | 4. 玻璃模糊糊掉菜单内容 | 开了就是坏体验，且高端机才触发 |
-| **P0** | 5. 书源搜索报错 | 每次搜书都刷错误，像 App 坏了 |
-| P1 | 6. 图标还是 KK | 第一眼品牌不一致 |
-| P1 | 7. 关于/分享文案写死 KK | 含一个连带的高亮失效 bug |
-| P1 | 1+2（书架上浮+虚线间距） | 已记录，共用同一段几何，建议一起改 |
-| P2 | 9. 翻页热区重叠 | 特定位置误触 |
-| P2 | 10. 订阅说明措辞 | 文案修正 |
-| P3 | 8. 注释/颜色名 | 纯维护性 |
-
-
+- 书源实测可用：`/book/{aid}.htm`、`/novel/.../index.htm`、章节页均 200
+- 内置书源导入链路完整：`App.kt:92` → `DefaultData.upVersion()` →
+  `importBuiltinWenku8Source()`
+- 权限名已同步为 `io.qingfeng.reader.READ_WRITE`
+- 书城删除后无任何悬空引用
+- 莫奈取色走 `recreateActivities()` 重建，配色能生效
+- 订阅说明面板折叠状态持久化正确
+- Edge 协议算法与独立实现逐字符一致（`EdgeProtocolTest` 3 项）
+- 书源规则在真实页面上命中（`Wenku8SourceRuleTest` 4 项）
