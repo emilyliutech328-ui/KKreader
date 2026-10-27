@@ -341,13 +341,10 @@ class BookshelfCarouselView @JvmOverloads constructor(
 
     private fun handleTap(x: Float) {
         val currentIndex = selection.roundToInt()
-        // 右下角页码：点「›」下一本，点「‹」上一本
-        if (downY > height - dp(30f) && x > width * 0.62f) {
-            val forward = x > width - dp(56f)
-            animateTo((currentIndex + if (forward) 1 else -1).toFloat())
-            return
-        }
-        // 书名区：点一下打开当前书
+        // 底部虚线标签区（"全部图书 · N 本"）：点一下打开当前书。
+        // 不设隐形翻页热区：右下角没有绘制「‹ ›」箭头，热区却与虚线框
+        // 重叠约 8dp，点「N 本」附近会莫名翻页（KNOWN_ISSUES P2-1）。
+        // 翻书一律用横向拖动或点其它书脊。
         if (downY > shelfBottom + dp(6f)) {
             onBookClick?.invoke(bookAt(currentIndex) ?: return)
             return
