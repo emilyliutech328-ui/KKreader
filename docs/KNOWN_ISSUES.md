@@ -74,11 +74,9 @@
 
 ### P1 · 品牌一致性
 
-#### 桌面图标仍是「KK」字样
-- **现象**：应用名已改为「轻风阅读」，但 `mipmap-xxxhdpi/ic_launcher_foreground.png`
-  实际图样是深蓝「KK」字样，桌面第一眼就不对。
-- **修复建议**：重新出图标（建议「风的线条 + 书页」或单字「风」），
-  替换 `ic_launcher_background/foreground/monochrome` 五套 dpi。
+#### ~~桌面图标仍是「KK」字样~~
+**✅ 已解决**（commit `4b686ac`，随 v1.0.1 发布）。新图标：翻开的书 + 三道上升风纹 +
+金色书签，adaptive 三层 + 五档密度，内容经自动测量收进 66dp 安全区（余量 8.6px）。
 
 #### 关于页 / 分享文案写死「KK读书」
 - **位置**（`res/values/strings.xml`）：
