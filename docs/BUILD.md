@@ -233,8 +233,37 @@ CI 会：还原密钥库 → 写入签名配置（只在 runner 的临时 `~/.gr
 不进仓库）→ 构建 release 包 → `apksigner verify` 校验 →
 创建 Release 并附 APK，正文里带 SHA-256。
 
-### 没有配 Secrets 会怎样
+### 已验证可用（2026-10-27）
 
-`release.yml` 会直接失败并报「缺少 KEYSTORE_BASE64」，**不会**产出未签名的包。
-想临时绕过：本地构建后手动创建 Release、手动传 APK 即可。
+v1.0.0 的完整发版链路已跑通，5 个关键步骤全部 success：
+
+```
+✓ 还原签名密钥库      ✓ 写入签名配置
+✓ 构建 Release APK    ✓ 校验签名
+✓ 发布到 GitHub Release
+```
+
+产物：`qingfeng-reader_app_1.0.26.102709.apk`
+
+### ⚠️ 密钥库备份（最重要）
+
+**`KEYSTORE_BASE64` 一旦丢失，将无法发布可覆盖安装的新版本。**
+
+密钥库现在有两处：本地文件 + GitHub Secrets。请额外做一份离线备份：
+
+- 本地路径：`C:\Users\01\WorkBuddy\2026-09-19-00-09-38\keystore\lanying-reader.jks`
+- 建议再复制到：加密压缩包 / 网盘 / 冷备 U 盘
+- 同时记下 storePassword、keyAlias、keyPassword（**不要和 jks 放在一起**）
+
+证书指纹（核对用）：
+
+```
+SHA256: D2:94:08:53:3E:9E:B4:FC:65:39:FC:96:9D:6C:7A:15:C4:18:F3:F9:E3:61:A9:75:BB:42:5F:2B:91:5E:6B:F6
+```
+
+### 换密钥库的后果
+
+若换用新密钥库，签出来的包**无法覆盖安装**现有用户版本
+（`INSTALL_FAILED_UPDATE_INCOMPATIBLE`），必须让用户卸载重装 —— 会丢数据。
+所以密钥库要长期保管，务必别丢。
 
