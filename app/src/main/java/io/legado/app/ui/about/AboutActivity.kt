@@ -30,7 +30,7 @@ class AboutActivity : BaseActivity<ActivityAboutBinding>() {
             .commit()
         binding.tvAppSummary.post {
             kotlin.runCatching {
-                // [自建版] 摘要里高亮的品牌词改为「KK读书」（原为上游公众号名）
+                // 摘要里高亮品牌词（当前应用名「轻风阅读」）
                 val span = ForegroundColorSpan(accentColor)
                 val spannableString = SpannableString(binding.tvAppSummary.text)
                 val brand = getString(R.string.app_name)

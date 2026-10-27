@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--App-->
-    <!-- [自建版] 应用名改为「KK读书」，与官方版区分 -->
+    <!-- 应用名：轻风阅读（独立品牌，基于上游 legado-E 分叉定制） -->
     <string name="app_name">轻风阅读</string>
     <string name="app_name_a">Legado·A</string>
     <string name="app_name_s" translatable="false">LegadoPlus</string>
@@ -1304,9 +1304,9 @@
     <string name="history">历史记录</string>
     <!-- [自建版] 关于页品牌文案：不再展示上游产品名与上游下载地址 -->
     <string name="app_name_sigma">轻风阅读</string>
-    <string name="about_description_sigma">\u3000\u3000KK读书 是「阅读Sigma（legado-E）」的自建分叉版，保留开源阅读的全部能力：自定义书源、订阅源、本地 TXT/EPUB、语音朗读、净化替换。\n\u3000\u3000本分叉做品牌定制与安全加固（UMD 解压上限、Rhino 脚本超时、正则超时、默认校验证书），独立包名，可与官方版共存。遵循 GPL-3.0，无广告、无统计。</string>
+    <string name="about_description_sigma">\u3000\u3000轻风阅读 是「阅读Sigma（legado-E）」的自建分叉版，保留开源阅读的全部能力：自定义书源、订阅源、本地 TXT/EPUB、语音朗读、净化替换。\n\u3000\u3000本分叉做品牌定制与安全加固（UMD 解压上限、Rhino 脚本超时、正则超时、默认校验证书），独立包名，可与官方版共存。遵循 GPL-3.0，无广告、无统计。</string>
     <string name="contributors_summary_sigma">gedoor、Luoyacheng、Horis 和 Xwite 等开源作者；本分叉在其基础上定制</string>
-    <string name="app_share_description_sigma">KK读书（自建版）：自定义书源的本地阅读器，支持本地 TXT/EPUB、订阅、语音朗读。基于开源阅读 Sigma，遵循 GPL-3.0。</string>
+    <string name="app_share_description_sigma">轻风阅读：自定义书源的本地阅读器，支持本地 TXT/EPUB、订阅、语音朗读。基于开源阅读 Sigma，遵循 GPL-3.0。</string>
     <string name="sure_cache_book">是否确认开始缓存？</string>
     <string name="non_printable_set">不可视字符设定</string>
     <string name="whitespace_leading">行首</string>
@@ -1353,7 +1353,7 @@
     <string name="welcome_subtitle">静心阅读 · 万千故事</string>
     <string name="welcome_footer">自建版 · 无广告 · 自定义书源</string>
     <string name="fork_info">分叉说明</string>
-    <string name="fork_info_desc">KK读书 相对上游 legado-E 的定制与安全加固清单</string>
+    <string name="fork_info_desc">轻风阅读 相对上游 legado-E 的定制与安全加固清单</string>
     <string name="fork_info_unavailable">分叉说明文件缺失，请重新安装</string>
     <string name="edge_tts_voice">在线音色</string>
     <string name="edge_tts_voice_summary">选择 Edge 在线朗读音色，支持中文与粤语</string>
