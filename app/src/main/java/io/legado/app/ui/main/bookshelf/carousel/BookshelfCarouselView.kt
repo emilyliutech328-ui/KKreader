@@ -250,19 +250,26 @@ class BookshelfCarouselView @JvmOverloads constructor(
         // 底部只保留一条"全部图书 · N 本"虚线区域的高度
         textBlockHeight = dp(46f)
         shelfBottom = h - textBlockHeight
-        baseline = shelfBottom - dp(6f)
+        // 书基线上移 7dp，让最后一排书底与虚线框之间留出约半个字（14sp）的空隙
+        // 原为 shelfBottom - 6dp，与框顶（shelfBottom + 8dp）仅隔 14dp，显得挤
+        baseline = shelfBottom - dp(13f)
         // 取自 Wenku8_Flutter archive_shelf_geometry.dart，按 390dp 屏宽等比收窄：
         // spineFor 约 13dp、pitch 约 19dp、coverFor 约 125dp
         spineWidth = (w * 0.034f).coerceIn(dp(12f), dp(15f))
         pitch = spineWidth + dp(6f)
         coverWidth = (w * 0.30f).coerceIn(dp(96f), dp(126f))
-        // 书脊 / 封面高度：按书架区高度收窄，留出上浮空间，保证书顶不溢出控件
+        // 书脊 / 封面高度：按书架区高度收窄，留出上浮空间，保证书顶不溢出控件。
+        // 取 0.70 而非 0.78：书脊略矮一点，给「选中的书浮出书架」腾出更多上浮余量。
         val bodyHeight = (coverWidth - dp(20f)) * 166f / 118f + dp(54f)
-        spineMaxHeight = bodyHeight.coerceAtMost(shelfBottom * 0.78f)
+        spineMaxHeight = bodyHeight.coerceAtMost(shelfBottom * 0.70f)
         coverHeight = spineMaxHeight
-        // 上浮量收窄到书脊高度的 42%，且不超过书架区顶部预留（书顶永远在控件内）
-        liftHeight = minOf(spineMaxHeight * 0.42f, baseline - spineMaxHeight * 1.14f - dp(4f))
-            .coerceAtLeast(0f)
+        // 上浮量：选中的书要「从书架抽出、悬浮在书架外」，
+        // 目标浮起约半个书脊高度；同时保证书顶不超出控件（留 2dp 余量）。
+        // 原实现用 min(书脊*0.42, baseline - 书脊*1.14 - 4dp)，实际只有 ~27dp，
+        // 书脊却有 ~190dp，只浮了 14%，看起来像缩在书架深处。
+        val idealLift = spineMaxHeight * 0.50f
+        val maxLiftAllowed = baseline - spineMaxHeight - dp(2f)
+        liftHeight = minOf(idealLift, maxLiftAllowed).coerceAtLeast(0f)
         ensureCovers(selection.roundToInt())
     }
 
@@ -510,19 +517,28 @@ class BookshelfCarouselView @JvmOverloads constructor(
         val first = floor(selection).toInt() - halfVisible
         val last = ceil(selection).toInt() + halfVisible
 
-        // 固定遮挡顺序：从左到右绘制，不按 weight 排序（避免交叉和顺序跳变）
-        // 每本书按：书脊 → 顶面 → 封面 的顺序绘制
+        // 绘制顺序：默认从左到右（右边压左边，符合真实书架透视）。
+        // 但**被抽出的那本要最后画** —— 它浮在书架外，应当遮挡左右两侧的邻居。
+        // 否则它会被右邻盖住，视觉上像「缩回书架深处」。
+        val visibleSlots = ArrayList<Int>(last - first + 1)
         for (slot in first..last) {
+            if (abs(slot - selection) > halfVisible + 1) continue
+            visibleSlots.add(slot)
+        }
+        val focusSlot = visibleSlots.maxByOrNull { coverWeight(it - selection) }
+        val drawOrder = if (focusSlot == null) visibleSlots
+        else visibleSlots.filter { it != focusSlot } + focusSlot
+
+        for (slot in drawOrder) {
             val offset = slot - selection
-            if (abs(offset) > halfVisible + 1) continue
             val book = bookAt(slot) ?: continue
             val weight = coverWeight(offset)
             val spineAlpha = (1f - weight * 1.05f).coerceIn(0f, 1f)
             if (spineAlpha <= 0.02f && weight <= 0.02f) continue
-            
+
             // 入场波浪动画：每本书按位置错开入场
             val inkProgress = calculateInkProgress(slot, centerIndex)
-            
+
             if (isLoading) {
                 // 骨架屏模式：画占位符
                 drawSkeletonBook(canvas, slot, offset, spineAlpha, ink, paper, night)
@@ -652,16 +668,19 @@ class BookshelfCarouselView @JvmOverloads constructor(
         val spineHeight = spineMaxHeight * variance
         val bottom = baseline + arcShift(offset)
         val spineTop = bottom - spineHeight
-        // 被选中的书整体上提、并向左让出封面厚度（Wenku8 origin 的 pull 位移）
+        // 被选中的书整体上提（抽离书架），并向左让出封面厚度
         val lift = liftHeight * weight * (1.24f - 0.24f * weight)
-        // 上提量夹紧：既不能顶出书架区，也不能超出控件顶部（书顶 >= 0）
-        val maxLiftTop = (spineTop - dp(4f)).coerceAtLeast(0f)
-        val maxLiftEdge = (spineTop - dp(4f) + (baseline - spineTop)).coerceAtLeast(0f)
-        val pull = lift.coerceAtMost(minOf(maxLiftTop, maxLiftEdge))
+        // 上提只受一个约束：书顶不能超出控件顶部（留 2dp）。
+        // 注意：不能再夹「不高于书架线」——那等于禁止它浮出书架，
+        // 正是之前看起来「缩回书架深处」的直接原因。
+        val maxLiftTop = (spineTop - dp(2f)).coerceAtLeast(0f)
+        val pull = lift.coerceAtMost(maxLiftTop)
+        // 横移与上提解耦：横移只占上提量的一小部分，避免破坏整排书的弧形排列
+        val shiftX = pull * 0.30f
         val spineRect = RectF(
-            x - pull * 0.66f,
+            x - shiftX,
             spineTop - pull,
-            x - pull * 0.66f + spineWidth,
+            x - shiftX + spineWidth,
             bottom - pull
         )
 
